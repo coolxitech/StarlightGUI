@@ -17,6 +17,18 @@ Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者�
 **Copyright © 2025 Starlight. All rights reserved.**
 
 ![Alt](https://repobeats.axiom.co/api/embed/33edd92df6ac6348e3eb2c6c1ba38046ca12e037.svg "Repobeats analytics image")
+
+## 安装
+
+Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在微软商店里安装的软件类似。由于暂未申请签名，你需要手动导入证书。  
+在 Release 里下载最新版本的两个文件，你下载的文件应该是这样：
+
+- StarlightGUI_x.x.x.x_x64.**cer**
+- StarlightGUI_x.x.x.x_x64.**msix**
+
+当你准备好后，双击后缀名为 `.cer` 的文件，点击安装证书，选择**当前用户**，然后选中将证书放入**受信任的根证书颁发机构**，完成向导。  
+接着，重复以上步骤，但是选择为**本地计算机**安装，完成向导。  
+最后，双击后缀名为 `.msix` 的文件，完成安装后，你将可以在应用列表里看见本软件了。
 ## 主要功能
 
 ### 任务管理器
@@ -26,17 +38,17 @@ Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者�
 - 实时系统资源监控
 
 ### Terminator/进程终止器
-- 提供**12种**不同的进程终止方法
-- 使用**系统API/不稳定方法/漏洞**终止进程
+- 提供 **12种** 不同的进程终止方法
+- 使用 **系统API/不稳定方法/漏洞** 终止进程
 
 ### Elevator/权限提升器
-- 通过系统API启动拥有TrustedInstaller权限的进程
-- 支持完整SE特权获取
+- 通过系统 API 启动拥有 TrustedInstaller 权限的进程
+- 支持完整 SE 特权获取
 
 ### Driver Loader/驱动加载器
 - 通过系统服务加载驱动程序
 - 支持绕过签名验证（通过系统漏洞）
-*警告：该功能使用RTCore64.sys实现任意内存读写，此驱动已被大部分杀软标记为危险，若要使用请自行添加信任。*
+*警告：该功能使用 RTCore64.sys 实现任意内存读写，此驱动已被大部分杀软标记为危险，若要使用请自行添加信任。*
 
 ### 设置菜单
 - 功能模块配置
@@ -47,7 +59,7 @@ Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者�
 ### 环境
 - Windows 11 操作系统
 - Visual Studio 2022 或更高版本
-- C++ 17以上 / WinRT WinUI3 开发环境
+- C++ 17 以上 / WinRT WinUI3 开发环境
 
 ### 安装步骤
 
@@ -64,18 +76,18 @@ Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者�
 
 3. **还原 NuGet 包**
    - 在解决方案资源管理器中右键点击解决方案
-   - 选择"还原 NuGet 包"
+   - 选择 "还原 NuGet 包"
 
 4. **配置构建环境**
    - 确保选择正确的构建配置（Debug/Release）
-   - 该项目依赖WinUI3，请注意架构配置
+   - 该项目依赖 WinUI3 ，请注意架构配置
 
 5. **构建和运行**
-   - 使用菜单中的"生成"→"生成解决方案"
+   - 使用菜单中的 "生成" → "生成解决方案"
 
 6. **生成安装包**
-   - 在解决方案资源管理器中右键点击"Starlight GUI (Desktop)"
-   - 选择"打包和发布"→"创建应用程序包"
+   - 在解决方案资源管理器中右键点击 "Starlight GUI (Desktop)"
+   - 选择 "打包和发布" → "创建应用程序包"
 
 ## 免责声明
 
@@ -105,8 +117,9 @@ Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者�
 
 ### 开发环境
 - **Visual Studio** - 强大的集成开发环境
-- **Microsoft WinUI3** - 现代化UI框架
-- **C++/WinRT** - 高效Windows运行时支持
+- **Microsoft WinUI3** - 现代化 UI 框架
+- **C++/WinRT** - 高效 Windows 运行时支持
+- **WinUI3** - 我不想感谢它，微软我阐述你的梦
 
 ---
 
