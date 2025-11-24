@@ -1,33 +1,47 @@
 #pragma once
 
 #include "pch.h"
+#include "IOBase.h"
+#include "unordered_set"
 
 namespace winrt::StarlightGUI::implementation {
 	class KernelInstance {
 	public:
-		static BOOL ZwTerminateProcess0(DWORD pid);
+		static bool IsRunningAsAdmin();
 
-		static DWORD ReadMemoryPrimitive(DWORD Size, DWORD64 Address);
+		// Process
+		static BOOL _ZwTerminateProcess(DWORD pid);
+		static BOOL MurderProcess(DWORD pid);
 
-		static void WriteMemoryPrimitive(DWORD Size, DWORD64 Address, DWORD Value);
+		static BOOL _SuspendProcess(DWORD pid);
+		static BOOL _ResumeProcess(DWORD pid);
+		static BOOL HideProcess(DWORD pid);
+		static BOOL SetPPL(DWORD pid, int level);
+		static BOOL SetCriticalProcess(DWORD pid);
 
-		static WORD ReadMemoryWORD(DWORD64 Address);
+		// Thread
+		static BOOL _ZwTerminateThread(DWORD tid);
+		static BOOL MurderThread(DWORD tid);
 
-		static DWORD ReadMemoryDWORD(DWORD64 Address);
+		static BOOL _SuspendThread(DWORD tid);
+		static BOOL _ResumeThread(DWORD tid);
 
-		static DWORD64 ReadMemoryDWORD64(DWORD64 Address);
+		// Enum
+		static BOOL EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList);
+		static BOOL EnumProcessThread(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads);
 
-		static void WriteMemoryDWORD64(DWORD64 Address, DWORD64 Value);
+		// System
+		static BOOL EnableDSE();
+		static BOOL DisableDSE();
+
+	private:
+		static BOOL GetDriverDevice();
 	};
 
 	class KernelBase {
-	private:
+	public:
 		static DWORD64 GetCIBaseAddress();
 		static ULONG64 HackCI();
-
-	public:
-		static bool HackCIOption(DWORD64 value);
-		static DWORD GetCIOption();
 	};
 
 	class DriverUtils {

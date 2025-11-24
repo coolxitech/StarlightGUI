@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="StarlightGUI.InfoWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:StarlightGUI"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="InfoWindow">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 自定义标题栏 -->
+        <Grid x:Name="AppTitleBar"
+              Background="{StaticResource WindowBackgroundBrush}"
+              Height="36">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 应用图标和标题 -->
+            <StackPanel Grid.Column="0" 
+                       Orientation="Horizontal" 
+                       HorizontalAlignment="Left"
+                       Margin="16,0,0,0"
+                       VerticalAlignment="Center">
+                <FontIcon Glyph="&#xE713;" 
+                          FontFamily="Segoe Fluent Icons"
+                          FontSize="16"
+                          Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                          VerticalAlignment="Center"/>
+                <TextBlock x:Name="ProcessName"
+                           FontSize="14"
+                           Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}"
+                           Margin="20,0,0,0"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- 标题栏拖拽区域 -->
+            <Grid Grid.Column="1" 
+                  x:Name="DragRegion"
+                  Background="Transparent"/>
+
+            <!-- 窗口控制按钮 -->
+            <StackPanel Grid.Column="2" 
+                       Orientation="Horizontal"
+                       HorizontalAlignment="Right">
+                <Button x:Name="MinimizeButton"
+                        Click="MinimizeButton_Click"
+                        Style="{StaticResource CaptionButtonStyle}">
+                    <TextBlock x:Name="MinimizeButtonContent"
+                              Text="&#xE921;"
+                              FontFamily="Segoe Fluent Icons"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="MaximizeButton"
+                        Click="MaximizeButton_Click"
+                        Style="{StaticResource CaptionButtonStyle}">
+                    <TextBlock x:Name="MaximizeButtonContent"
+                              Text="&#xE922;"
+                              FontFamily="Segoe Fluent Icons"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="CloseButton"
+                        Click="CloseButton_Click"
+                        Style="{StaticResource CloseCaptionButtonStyle}">
+                    <TextBlock x:Name="CloseButtonContent"
+                              Text="&#xE8BB;"
+                              FontFamily="Segoe Fluent Icons"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+        
+        <controls:NavigationView Grid.Row="1"
+                         x:Name="RootNavigation"
+                         PaneDisplayMode="LeftCompact"
+                         IsBackButtonVisible="Collapsed"
+                         IsSettingsVisible="False"
+                         IsPaneToggleButtonVisible="True"
+                         IsPaneOpen="False"
+                         CompactModeThresholdWidth="0"
+                         ExpandedModeThresholdWidth="0"
+                         OpenPaneLength="280"
+                         ItemInvoked="RootNavigation_ItemInvoked"
+                         Background="{StaticResource WindowBackgroundBrush}">
+
+            <!-- 选项，从上到下 -->
+            <controls:NavigationView.MenuItems>
+                <controls:NavigationViewItem Content="线程" Icon="List"/>
+            </controls:NavigationView.MenuItems>
+
+            <!-- 内容 -->
+            <Frame x:Name="MainFrame" Grid.Row="1"/>
+        </controls:NavigationView>
+    </Grid>
+</Window>

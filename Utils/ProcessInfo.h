@@ -9,7 +9,7 @@ namespace winrt::StarlightGUI::implementation
         ProcessInfo() = default;
 
         int32_t Id();
-        void Id(int32_t value);
+        void Id(int32_t const& value);
 
         hstring Name();
         void Name(hstring const& value);
@@ -29,6 +29,15 @@ namespace winrt::StarlightGUI::implementation
         hstring ExecutablePath();
         void ExecutablePath(hstring const& value);
 
+        hstring EProcess();
+        void EProcess(hstring const& value);
+
+        ULONG64 EProcessULong();
+        void EProcessULong(ULONG64 const& value);
+
+        hstring Status();
+        void Status(hstring const& value);
+
         winrt::Microsoft::UI::Xaml::Media::ImageSource Icon();
         void Icon(winrt::Microsoft::UI::Xaml::Media::ImageSource const& value);
 
@@ -40,6 +49,9 @@ namespace winrt::StarlightGUI::implementation
         uint64_t m_memoryUsageByte{ 0 };
         hstring m_cpuUsage{ L"" };
         hstring m_executablePath{ L"" };
+        hstring m_eprocess{ L"" };
+        ULONG64 m_eprocessULong{ 0 };
+        hstring m_status{ L"" };
         winrt::Microsoft::UI::Xaml::Media::ImageSource m_icon{ nullptr };
     };
 }

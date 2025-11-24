@@ -26,7 +26,7 @@ namespace winrt::StarlightGUI::implementation
     MainWindow* g_mainWindowInstance = nullptr;
     winrt::Microsoft::UI::Xaml::Media::MicaBackdrop micaBackdrop = nullptr;
     winrt::Microsoft::UI::Xaml::Media::DesktopAcrylicBackdrop acrylicBackdrop = nullptr;
-    static std::string background_type;
+    static HWND globalHWND;
 
     MainWindow::MainWindow()
     {
@@ -35,8 +35,9 @@ namespace winrt::StarlightGUI::implementation
         auto windowNative{ this->try_as<::IWindowNative>() };
         HWND hWnd{ 0 };
         windowNative->get_WindowHandle(&hWnd);
+        globalHWND = hWnd;
 
-        SetWindowPos(hWnd, NULL, 0, 0, 1200, 800, SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(hWnd, NULL, 0, 0, 1200, 800, SWP_NOMOVE);
 
         this->ExtendsContentIntoTitleBar(true);
         this->SetTitleBar(AppTitleBar());
@@ -58,14 +59,38 @@ namespace winrt::StarlightGUI::implementation
     {
     }
 
-    void MainWindow::InitializeComponent()
+    void MainWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
     {
-        MainWindowT::InitializeComponent();
+        if (args.IsSettingsInvoked())
+        {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::SettingsPage>());
+            return;
+        }
+
+        auto invokedItem = args.InvokedItem().try_as<winrt::hstring>();
+
+        if (invokedItem == L"主页")
+        {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
+        }
+        else if (invokedItem == L"任务管理") {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::TaskPage>());
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
+        }
+        else if (invokedItem == L"系统管理") {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::ProcessPage>());
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
+        }
+        else if (invokedItem == L"帮助") {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::HelpPage>());
+            RootNavigation().SelectedItem(RootNavigation().FooterMenuItems().GetAt(0));
+        }
     }
 
     void MainWindow::LoadBackdrop()
     {
-        background_type = ReadConfig("background_type", "Static");
+        auto background_type = ReadConfig("background_type", "Static");
 
         if (background_type == "Mica") {
             micaBackdrop = winrt::Microsoft::UI::Xaml::Media::MicaBackdrop();
@@ -110,6 +135,11 @@ namespace winrt::StarlightGUI::implementation
 
     void MainWindow::CloseButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
+        for (auto& window : m_openWindows) {
+            if (window) {
+                window.Close();
+            }
+        }
         this->Close();
     }
 
@@ -133,41 +163,9 @@ namespace winrt::StarlightGUI::implementation
         }
     }
 
-    void MainWindow::RootNavigation_ItemInvoked(Microsoft::UI::Xaml::Controls::NavigationView sender, Microsoft::UI::Xaml::Controls::NavigationViewItemInvokedEventArgs args)
-    {
-        if (args.IsSettingsInvoked())
-        {
-            MainFrame().Navigate(xaml_typename<StarlightGUI::SettingsPage>());
-            return;
-        }
-
-        auto invokedItem = args.InvokedItem().try_as<winrt::hstring>();
-
-        if (invokedItem == L"主页")
-        {
-            MainFrame().Navigate(xaml_typename<StarlightGUI::HomePage>());
-            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
-        }
-        else if (invokedItem == L"任务管理") {
-            MainFrame().Navigate(xaml_typename<StarlightGUI::TaskPage>());
-            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
-        }
-        else if (invokedItem == L"系统管理") {
-            MainFrame().Navigate(xaml_typename<StarlightGUI::ProcessPage>());
-            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
-        }
-        else if (invokedItem == L"帮助") {
-            MainFrame().Navigate(xaml_typename<StarlightGUI::HelpPage>());
-            RootNavigation().SelectedItem(RootNavigation().FooterMenuItems().GetAt(0));
-        }
-    }
-
     HWND MainWindow::GetWindowHandle()
     {
-        auto windowNative{ this->try_as<::IWindowNative>() };
-        HWND hWnd{ 0 };
-        windowNative->get_WindowHandle(&hWnd);
-        return hWnd;
+        return globalHWND;
     }
 
     LRESULT CALLBACK MainWindow::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)

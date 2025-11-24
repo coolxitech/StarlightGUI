@@ -16,72 +16,23 @@ namespace winrt::StarlightGUI::implementation {
 	void TaskUtils::EnsurePrivileges() {
 		TaskUtils::EnableDebugPrivilege();
 	}
-	/*
-	* 结束进程
-	*/
-	bool TaskUtils::Task_TerminateProcess(StarlightGUI::ProcessInfo pi) {
-		int pid = pi.Id();
-		if (pid != 0) {
-			HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
 
+	bool TaskUtils::_TerminateProcess(DWORD pid) {
+		if (pid != 0) {
+            HANDLE hProc = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
 			if (hProc) {
-				BOOL result = TerminateProcess(hProc, 0);
-				CloseHandle(hProc);
-
-				return result;
+				return TerminateProcess(hProc, 0);
 			}
 		}
 		return false;
 	}
-	/*
-	* 结束任务
-	*/
-	bool TaskUtils::Task_EndTask(StarlightGUI::ProcessInfo pi) {
-		int pid = pi.Id();
-		if (pid != 0) {
-			return EnumWindows(EndTaskByWindow, (LPARAM)&pid);
-		}
-		return false;
-	}
 
-	/*
-	* 结束线程
-	*/
-	bool TaskUtils::Task_TerminateThread(StarlightGUI::ProcessInfo pi) {
-		int pid = pi.Id();
-		if (pid != 0) {
-			HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, pid);
-			if (hSnapshot && hSnapshot != INVALID_HANDLE_VALUE) {
-				THREADENTRY32 threadEntry = { sizeof(threadEntry) };
-				BOOL finder = Thread32First(hSnapshot, &threadEntry);
-
-				for (; finder; finder = Thread32Next(hSnapshot, &threadEntry)) {
-					if (threadEntry.th32OwnerProcessID == pid) {
-						HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, threadEntry.th32ThreadID);
-						BOOL result = FALSE;
-
-						if (hThread) {
-							result = TerminateThread(hThread, 0);
-						}
-
-						CloseHandle(hThread);
-						CloseHandle(hSnapshot);
-						return result;
-					}
-				}
+	bool TaskUtils::_TerminateThread(DWORD tid) {
+		if (tid != 0) {
+			HANDLE hThread = OpenThread(THREAD_TERMINATE, FALSE, tid);
+			if (hThread) {
+				return TerminateThread(hThread, 0);
 			}
-			CloseHandle(hSnapshot);
-		}
-		return false;
-	}
-
-	/*
-	* 强制结束进程
-	*/
-	bool TaskUtils::Task_TerminateProcessForce(StarlightGUI::ProcessInfo pi) {
-		int pid = pi.Id();
-		if (pid != 0) {
-			return KernelInstance::ZwTerminateProcess0(pid);
 		}
 		return false;
 	}
@@ -89,7 +40,7 @@ namespace winrt::StarlightGUI::implementation {
 	/*
 	* 开启进程效能模式
 	*/
-	bool TaskUtils::Task_EnableProcessPerformanceMode(StarlightGUI::ProcessInfo pi) {
+	bool TaskUtils::EnableProcessPerformanceMode(StarlightGUI::ProcessInfo pi) {
 		int pid = pi.Id();
 		if (pid != 0) {
 			HANDLE hProc = OpenProcess(PROCESS_SET_INFORMATION, FALSE, pid);
@@ -114,7 +65,7 @@ namespace winrt::StarlightGUI::implementation {
 	/*
 	* 获取进程私有工作集
 	*/
-	SIZE_T TaskUtils::Task_GetProcessWorkingSet(HANDLE hProc) {
+	SIZE_T TaskUtils::GetProcessWorkingSet(HANDLE hProc) {
 		PSAPI_WORKING_SET_INFORMATION workSetInfo{};
 		PBYTE pByte = NULL;
 		PSAPI_WORKING_SET_BLOCK* pWorkSetBlock = workSetInfo.WorkingSetInfo;
@@ -197,11 +148,11 @@ namespace winrt::StarlightGUI::implementation {
 
 	winrt::Windows::Foundation::IAsyncAction TaskUtils::ReadSPIAsync(PMY_SYSTEM_PROCESS_INFORMATION& spi, std::map<DWORD, hstring>& processCpuTable) {
 		// Loop through the processes and fill the map with PID and CPU usage
-		LONGLONG cpuUsage = spi->KernelTime.QuadPart;
+		LONGLONG cpuUsage = spi->UserTime.QuadPart + spi->KernelTime.QuadPart;
 		if (cpuUsage > 0) {
-			processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = to_hstring(std::round(cpuUsage / 1000000000.0) / 10.0) + L"%";
+			processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = to_hstring(std::round(cpuUsage / 1000000000.0) / 10.0) + L"s";
 		}
-		else processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = L"0%";
+		else processCpuTable[(DWORD)(ULONG_PTR)spi->UniqueProcessId] = L"0s";
 
 		co_return;
 	}
@@ -209,7 +160,7 @@ namespace winrt::StarlightGUI::implementation {
 	/*
 	* 复制至剪贴板
 	*/
-	bool TaskUtils::Task_CopyToClipboard(std::wstring str) {
+	bool TaskUtils::CopyToClipboard(std::wstring str) {
 		if (str.empty()) {
 			return false;
 		}
@@ -251,7 +202,7 @@ namespace winrt::StarlightGUI::implementation {
 	/*
 	* 打开文件所在位置
 	*/
-	bool TaskUtils::Task_OpenFolderAndSelectFile(std::wstring filePath) {
+	bool TaskUtils::OpenFolderAndSelectFile(std::wstring filePath) {
 		PIDLIST_ABSOLUTE pidl = nullptr;
 
 		HRESULT hr = SHParseDisplayName(filePath.c_str(), nullptr, &pidl, 0, nullptr);
@@ -272,7 +223,7 @@ namespace winrt::StarlightGUI::implementation {
 	/*
 	* 打开文件属性
 	*/
-	bool TaskUtils::Task_OpenFileProperties(std::wstring filePath) {
+	bool TaskUtils::OpenFileProperties(std::wstring filePath) {
 		SHELLEXECUTEINFOW sei = { 0 };
 		sei.cbSize = sizeof(sei);
 		sei.fMask = SEE_MASK_INVOKEIDLIST;

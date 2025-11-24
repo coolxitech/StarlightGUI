@@ -645,7 +645,7 @@ bool DoTerminateProcess(int method, int pid, XamlRoot& xamlRoot, Panel panel) {
 }
 
 bool TerminateProcessByKernel(int pid, std::wstring& content) {
-	if (KernelInstance::ZwTerminateProcess0(pid)) {
+	if (KernelInstance::_ZwTerminateProcess(pid)) {
 		content = L"成功强制终止了PID为" + std::to_wstring(pid) + L"的进程！";
 		return true;
 	}

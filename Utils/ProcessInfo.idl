@@ -13,6 +13,9 @@ namespace StarlightGUI
         UInt64 MemoryUsageByte{ get; set; };
         String CpuUsage{ get; set; };
         String ExecutablePath{ get; set; };
+        String EProcess{ get; set; };
+        UInt64 EProcessULong{ get; set; };
+        String Status{ get; set; };
         Microsoft.UI.Xaml.Media.ImageSource Icon{ get; set; };
     }
 }

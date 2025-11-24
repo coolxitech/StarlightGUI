@@ -12,8 +12,9 @@ namespace winrt::StarlightGUI::implementation
         ProcessPage();
 
         winrt::fire_and_forget TerminatorButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        winrt::Windows::Foundation::IAsyncAction ElevatorExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::fire_and_forget ElevatorButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-
+        winrt::Windows::Foundation::IAsyncAction DriverLoaderExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::fire_and_forget DriverLoaderLoadButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
         inline static bool confirmedOnce = false;

@@ -21,6 +21,7 @@
 #include <random>
 #include <chrono>
 #include <Utils/Utils.h>
+#include <Utils/KernelBase.h>
 
 using namespace winrt;
 using namespace Windows::Web::Http;
@@ -44,7 +45,17 @@ namespace winrt::StarlightGUI::implementation
         SetUserProfile();
         FetchHitokoto();
         SetupClock();
-        LoadDriverPath();
+
+        if (!loaded) {
+            LoadDriverPath();
+            if (!KernelInstance::IsRunningAsAdmin()) {
+                CreateInfoBarAndDisplay(L"警告", L"当前正以常规模式运行，大部分功能将无法使用或功能残缺。欲使用完整功能请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            }
+            else {
+                CreateInfoBarAndDisplay(L"信息", L"正在加载驱动，这可能需要一点时间...", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
+            }
+            loaded = true;
+        }
     }
 
     void HomePage::SetGreetingText()
@@ -208,19 +219,19 @@ namespace winrt::StarlightGUI::implementation
     }
 
     winrt::fire_and_forget HomePage::LoadDriverPath() {
-        if (kernelPath.empty() || rtcorePath.empty()) {
+        if (kernelPath.empty()) {
             try {
                 auto appFolder = Package::Current().InstalledLocation();
                 auto assetsFolder = co_await appFolder.GetFolderAsync(L"Assets");
                 auto kernelFile = co_await assetsFolder.GetFileAsync(L"kernel.sys");
-                auto rtcoreFile = co_await assetsFolder.GetFileAsync(L"RTCore64.sys");
 
-                kernelPath = kernelFile.Path();
-                rtcorePath = rtcoreFile.Path();
-
+                if (kernelFile) {
+                    kernelPath = kernelFile.Path();
+                    DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused);
+                }
             }
-            catch (std::exception) {
-                CreateInfoBarAndDisplay(L"警告", L"一个或多个驱动文件未找到，部分功能可能不可用！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            catch (winrt::hresult_error) {
+                CreateInfoBarAndDisplay(L"警告", L"一个或多个驱动文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
         }
     }

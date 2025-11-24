@@ -15,8 +15,6 @@ namespace winrt::StarlightGUI::implementation
         MainWindow();
         ~MainWindow();
 
-        void InitializeComponent();
-
         void MinimizeButton_Click(winrt::Windows::Foundation::IInspectable const& sender,
             winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void MaximizeButton_Click(winrt::Windows::Foundation::IInspectable const& sender,
@@ -40,6 +38,9 @@ namespace winrt::StarlightGUI::implementation
         winrt::Microsoft::UI::Xaml::Controls::TextBlock MaximizeButtonContent() {
             return MaximizeButton().Content().as<winrt::Microsoft::UI::Xaml::Controls::TextBlock>();
         }
+
+        std::vector<winrt::StarlightGUI::InfoWindow> m_openWindows;
+
     };
 
     extern MainWindow* g_mainWindowInstance;

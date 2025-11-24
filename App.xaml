@@ -11,9 +11,9 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <x:String x:Key="Version">v1.2.1</x:String>
-            <x:String x:Key="ReleaseDate">2025/11/17</x:String>
-            <x:String x:Key="Author">Stars</x:String>
+            <x:String x:Key="Version">v1.3.0</x:String>
+            <x:String x:Key="ReleaseDate">2025/11/24</x:String>
+            <x:String x:Key="Author">Stars, KALI_MC</x:String>
 
             <!-- Transparent -->
             <SolidColorBrush x:Key="WindowBackgroundBrush" Color="Transparent"/>

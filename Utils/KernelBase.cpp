@@ -39,17 +39,4 @@ namespace winrt::StarlightGUI::implementation {
 
 		return g_ciOptions;
 	}
-
-	bool KernelBase::HackCIOption(DWORD64 value) {
-		ULONG64 ciOptions = HackCI();
-
-		KernelInstance::WriteMemoryDWORD64(ciOptions, value);
-
-		return KernelInstance::ReadMemoryDWORD(ciOptions) == value;
-	}
-
-	DWORD KernelBase::GetCIOption() {
-		ULONG64 ciOptions = HackCI();
-		return KernelInstance::ReadMemoryDWORD(ciOptions);
-	}
 }

@@ -1,113 +1,306 @@
 #include "pch.h"
 #include "KernelBase.h"
-#include "winioctl.h"
+#include "CppUtils.h"
 
-#define IOCTL_OFFSET_Protection           CTL_CODE(FILE_DEVICE_UNKNOWN, 0x700, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_OFFSET_UniqueProcessId      CTL_CODE(FILE_DEVICE_UNKNOWN, 0x701, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_OFFSET_ApcQueueable         CTL_CODE(FILE_DEVICE_UNKNOWN, 0x702, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_OFFSET_ActiveProcessLinks   CTL_CODE(FILE_DEVICE_UNKNOWN, 0x703, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define IOCTL_HideProcess				  CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)        // 蓝屏警告
-#define IOCTL_SetPID4					  CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)        // 概率蓝屏警告
-#define IOCTL_SetPPL                      CTL_CODE(FILE_DEVICE_UNKNOWN, 0x802, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_TokenUp                     CTL_CODE(FILE_DEVICE_UNKNOWN, 0x803, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_SetCritical                 CTL_CODE(FILE_DEVICE_UNKNOWN, 0x804, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_ApcQueueable                CTL_CODE(FILE_DEVICE_UNKNOWN, 0x805, METHOD_BUFFERED, FILE_ANY_ACCESS)       // 蓝屏警告
-#define IOCTL_DisableProcCreate           CTL_CODE(FILE_DEVICE_UNKNOWN, 0x806, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_EnableProcCreate            CTL_CODE(FILE_DEVICE_UNKNOWN, 0x807, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_TerminateProcess            CTL_CODE(FILE_DEVICE_UNKNOWN, 0x808, METHOD_BUFFERED, FILE_ANY_ACCESS)
+typedef struct _PROCESS_INPUT {
+	ULONG PID;
+} PROCESS_INPUT, *PPROCESS_INPUT;
 
 namespace winrt::StarlightGUI::implementation {
+	static HANDLE driverDevice = NULL;
 
-	static const DWORD RTCORE64_MSR_READ_CODE = 0x80002030;
-	static const DWORD RTCORE64_MEMORY_READ_CODE = 0x80002048;
-	static const DWORD RTCORE64_MEMORY_WRITE_CODE = 0x8000204c;
-
-	BOOL KernelInstance::ZwTerminateProcess0(DWORD pid) {
+	BOOL KernelInstance::_ZwTerminateProcess(DWORD pid) {
 		if (pid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { pid };
+
+		return DeviceIoControl(driverDevice, IOCTL_TERMINATE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::MurderProcess(DWORD pid) {
+        if (pid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { pid };
+
+		return DeviceIoControl(driverDevice, IOCTL_FORCE_TERMINATE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::_SuspendProcess(DWORD pid) {
+		if (pid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { pid };
+
+		return DeviceIoControl(driverDevice, IOCTL_SUSPEND_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::_ResumeProcess(DWORD pid) {
+		if (pid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { pid };
+
+		return DeviceIoControl(driverDevice, IOCTL_RESUME_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::HideProcess(DWORD pid) {
+		if (pid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { pid };
+
+		return DeviceIoControl(driverDevice, IOCTL_HIDE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::SetPPL(DWORD pid, int level) {
+		if (pid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		struct INPUT {
+			ULONG PID;
+			int level;
+		};
+
+		INPUT in = { pid, level };
+
+		return DeviceIoControl(driverDevice, IOCTL_SET_PPL, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::SetCriticalProcess(DWORD pid) {
+		if (pid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { pid };
+
+		return DeviceIoControl(driverDevice, IOCTL_SET_CRITICAL_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::_ZwTerminateThread(DWORD tid) {
+		if (tid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { tid };
+
+		return DeviceIoControl(driverDevice, IOCTL_TERMINATE_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::MurderThread(DWORD tid) {
+		if (tid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { tid };
+
+		return DeviceIoControl(driverDevice, IOCTL_FORCE_TERMINATE_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::_SuspendThread(DWORD tid) {
+		if (tid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { tid };
+
+		return DeviceIoControl(driverDevice, IOCTL_SUSPEND_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::_ResumeThread(DWORD tid) {
+		if (tid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		PROCESS_INPUT in = { tid };
+
+		return DeviceIoControl(driverDevice, IOCTL_RESUME_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT
+		{
+			ULONG_PTR nSize;
+			PVOID ProcessInfo;
+		};
+
+		BOOL bRet = FALSE;
+		INPUT input = { 0 };
+
+		PDATA_INFO pProcessInfo = NULL;
+
+		input.ProcessInfo = (PVOID)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(DATA_INFO) * (targetList.size() + 50));
+		input.nSize = sizeof(DATA_INFO) * (targetList.size() + 50);
+
+
+		ULONG nRet = 0;
+		DWORD bytesReturned;
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS, &input, sizeof(INPUT), &nRet, sizeof(ULONG), &bytesReturned, NULL);
+
+		if (status)
+		{
+			pProcessInfo = (PDATA_INFO)input.ProcessInfo;
+			for (ULONG i = 0; i < nRet; i++)
+			{
+				if (pProcessInfo[i].ulongdata1 != 0)
+				{
+					auto it = processMap.find((DWORD)pProcessInfo[i].ulongdata1);
+					if (it != processMap.end()) {
+						winrt::StarlightGUI::ProcessInfo pi = targetList.at(it->second);
+						pi.Name(winrt::to_hstring(pProcessInfo[i].Module));
+						pi.EProcess(ULongToHexString((ULONG64)pProcessInfo[i].pvoidaddressdata1));
+						pi.EProcessULong((ULONG64)pProcessInfo[i].pvoidaddressdata1);
+						pi.Status(pProcessInfo[i].ulongdata2 == FALSE ? L"运行中" : L"已隐藏");
+					}
+					else {
+						auto pi = winrt::make<winrt::StarlightGUI::implementation::ProcessInfo>();
+						pi.Id(pProcessInfo[i].ulongdata1);
+						pi.Name(winrt::to_hstring(pProcessInfo[i].Module));
+						pi.Description(L"应用程序");
+						pi.ExecutablePath(winrt::to_hstring(pProcessInfo[i].Module1));
+						pi.EProcess(ULongToHexString((ULONG64)pProcessInfo[i].pvoidaddressdata1));
+						pi.EProcessULong((ULONG64)pProcessInfo[i].pvoidaddressdata1);
+						pi.Status(pProcessInfo[i].ulongdata2 == FALSE ? L"运行中" : L"已隐藏");
+						targetList.push_back(pi);
+					}
+				}
+				else if (pProcessInfo[i].ulongdata1 == 0) {
+					auto pi = winrt::make<winrt::StarlightGUI::implementation::ProcessInfo>();
+					pi.Id(pProcessInfo[i].ulongdata1);
+					pi.Name(winrt::to_hstring(pProcessInfo[i].Module));
+					pi.Description(L"系统");
+					pi.ExecutablePath(winrt::to_hstring(pProcessInfo[i].Module1));
+					pi.EProcess(ULongToHexString((ULONG64)pProcessInfo[i].pvoidaddressdata1));
+					pi.EProcessULong((ULONG64)pProcessInfo[i].pvoidaddressdata1);
+					pi.Status(L"系统");
+					targetList.push_back(pi);
+				}
+			}
+		}
+		bRet = HeapFree(GetProcessHeap(), 0, input.ProcessInfo);
+		return status && bRet;
+	}
+
+	BOOL KernelInstance::EnumProcessThread(ULONG64 pEprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads)
+	{
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		BOOL bRet = FALSE;
+
+		struct INPUT
+		{
+			ULONG nSize;
+			ULONG64 pEprocess;
+			PDATA_INFO pBuffer;
+		};
+
+		INPUT inputs = { 0 };
+
+		ULONG nRetLength = 0;
+		inputs.pEprocess = pEprocess;
+		inputs.nSize = sizeof(DATA_INFO) * 1000;
+		inputs.pBuffer = (DATA_INFO*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+
+		if (inputs.pBuffer)
+		{
+			bRet = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_THREAD_CIDTABLE, &inputs, sizeof(INPUT), &nRetLength, sizeof(ULONG), 0, 0);
+			if (bRet && nRetLength > 0)
+			{
+				for (ULONG i = 0; i < nRetLength; i++)
+				{
+					auto threadInfo = winrt::make<winrt::StarlightGUI::implementation::ThreadInfo>();
+					threadInfo.Id(inputs.pBuffer[i].ulongdata3);
+					threadInfo.EThread(ULongToHexString(inputs.pBuffer[i].ulong64data1));
+					threadInfo.Address(ULongToHexString(inputs.pBuffer[i].ulong64data2));
+					threadInfo.Priority(inputs.pBuffer[i].ulongdata2);
+					threadInfo.ModuleInfo(winrt::to_hstring(inputs.pBuffer[i].Module));
+					switch (inputs.pBuffer[i].ulongdata1)
+					{
+					case ThreadState_Initialized:
+						threadInfo.Status(L"初始化");
+						break;
+
+					case ThreadState_Ready:
+						threadInfo.Status(L"就绪");
+						break;
+
+					case ThreadState_Running:
+						threadInfo.Status(L"运行中");
+						break;
+
+					case ThreadState_Standby:
+						threadInfo.Status(L"待命");
+						break;
+
+					case ThreadState_Terminated:
+						threadInfo.Status(L"已退出");
+						break;
+
+					case ThreadState_Waiting:
+						threadInfo.Status(L"等待中");
+						break;
+
+					case ThreadState_Transition:
+						threadInfo.Status(L"Transition");
+						break;
+
+					case ThreadState_DeferredReady:
+						threadInfo.Status(L"Deferred Ready");
+						break;
+
+					case ThreadState_GateWait:
+						threadInfo.Status(L"Gate Wait");
+						break;
+
+					default:
+						threadInfo.Status(L"未知");
+						break;
+					}
+					threads.push_back(threadInfo);
+				}
+			}
+
+			bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
+		}
+		return bRet;
+	}
+
+	BOOL KernelInstance::DisableDSE() {
+		return DeviceIoControl(driverDevice, IOCTL_DISABLE_DSE, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::EnableDSE() {
+		return DeviceIoControl(driverDevice, IOCTL_ENABLE_DSE, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+
+	// =================================
+	//				PRIVATE
+	// =================================
+
+	/*
+	* 获取驱动设备位置
+	*/
+	BOOL KernelInstance::GetDriverDevice() {
+		if (driverDevice != NULL) return TRUE;
 		if (!DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused)) return FALSE;
 
-		DWORD bytesReturned;
-
-		HANDLE device = CreateFile(L"\\\\.\\Drv", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+		HANDLE device = CreateFile(L"\\\\.\\ArkDrv64", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 
 		if (device == INVALID_HANDLE_VALUE) return FALSE;
 
-		return DeviceIoControl(device, IOCTL_TerminateProcess, &pid, sizeof(DWORD), NULL, 0, &bytesReturned, NULL);
+		driverDevice = device;
+		return TRUE;
 	}
 
-	DWORD KernelInstance::ReadMemoryPrimitive(DWORD Size, DWORD64 Address) {
-		struct RTCORE64_MEMORY_READ {
-			BYTE Pad0[8];
-			DWORD64 Address;
-			BYTE Pad1[8];
-			DWORD ReadSize;
-			DWORD Value;
-			BYTE Pad3[16];
-		};
-
-		if (!DriverUtils::LoadDriver(rtcorePath.c_str(), L"RTCore64.sys", unused)) return 0;
-
-		HANDLE device = CreateFile(L"\\\\.\\RTCore64", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-
-		if (device == INVALID_HANDLE_VALUE) {
-			return 0;
+	bool KernelInstance::IsRunningAsAdmin() {
+		HANDLE hToken = nullptr;
+		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+			return false;
 		}
 
-		RTCORE64_MEMORY_READ MemoryRead{};
-		MemoryRead.Address = Address;
-		MemoryRead.ReadSize = Size;
+		TOKEN_ELEVATION elevation{};
+		DWORD dwSize;
+		bool result = GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize);
+		CloseHandle(hToken);
 
-		DWORD BytesReturned;
-
-		DeviceIoControl(device, RTCORE64_MEMORY_READ_CODE, &MemoryRead, sizeof(MemoryRead), &MemoryRead, sizeof(MemoryRead), &BytesReturned, nullptr);
-
-		return MemoryRead.Value;
-	}
-
-	void KernelInstance::WriteMemoryPrimitive(DWORD Size, DWORD64 Address, DWORD Value) {
-		struct RTCORE64_MEMORY_WRITE {
-			BYTE Pad0[8];
-			DWORD64 Address;
-			BYTE Pad1[8];
-			DWORD WriteSize;
-			DWORD Value;
-			BYTE Pad3[16];
-		};
-
-		if (!DriverUtils::LoadDriver(rtcorePath.c_str(), L"RTCore64.sys", unused)) {
-			OutputDebugString(unused.c_str());
-			return;
-		}
-
-		HANDLE device = CreateFile(L"\\\\.\\RTCore64", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-
-		if (device == INVALID_HANDLE_VALUE) return;
-
-		RTCORE64_MEMORY_WRITE MemoryWrite{};
-		MemoryWrite.Address = Address;
-		MemoryWrite.WriteSize = Size;
-		MemoryWrite.Value = Value;
-
-		DWORD BytesReturned;
-
-		DeviceIoControl(device, RTCORE64_MEMORY_WRITE_CODE, &MemoryWrite, sizeof(MemoryWrite), &MemoryWrite, sizeof(MemoryWrite), &BytesReturned, nullptr);
-	}
-
-	WORD KernelInstance::ReadMemoryWORD(DWORD64 Address) {
-		return ReadMemoryPrimitive(2, Address) & 0xffff;
-	}
-
-	DWORD KernelInstance::ReadMemoryDWORD(DWORD64 Address) {
-		return ReadMemoryPrimitive(4, Address);
-	}
-
-	DWORD64 KernelInstance::ReadMemoryDWORD64(DWORD64 Address) {
-		return (static_cast<DWORD64>(ReadMemoryDWORD(Address + 4)) << 32) | ReadMemoryDWORD(Address);
-	}
-
-	void KernelInstance::WriteMemoryDWORD64(DWORD64 Address, DWORD64 Value) {
-		WriteMemoryPrimitive(4, Address, Value & 0xffffffff);
-		WriteMemoryPrimitive(4, Address + 4, Value >> 32);
+		return result && elevation.TokenIsElevated;
 	}
 }

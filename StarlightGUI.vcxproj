@@ -158,6 +158,10 @@
     <ClInclude Include="HomePage.xaml.h">
       <DependentUpon>HomePage.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="InfoWindow.xaml.h">
+      <DependentUpon>InfoWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="IOBase.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
@@ -168,6 +172,10 @@
     </ClInclude>
     <ClInclude Include="ProcessPage.xaml.h">
       <DependentUpon>ProcessPage.xaml</DependentUpon>
+    </ClInclude>
+    <ClInclude Include="Process_ThreadPage.xaml.h">
+      <DependentUpon>Process_ThreadPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingsPage.xaml.h">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
@@ -182,6 +190,7 @@
     <ClInclude Include="Utils\ProcessInfo.h" />
     <ClInclude Include="Utils\TaskUtils.h" />
     <ClInclude Include="Utils\Terminator.h" />
+    <ClInclude Include="Utils\ThreadInfo.h" />
     <ClInclude Include="Utils\Utils.h" />
   </ItemGroup>
   <ItemGroup>
@@ -190,8 +199,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="HomePage.xaml" />
+    <Page Include="InfoWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml" />
     <Page Include="ProcessPage.xaml" />
+    <Page Include="Process_ThreadPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SettingsPage.xaml" />
     <Page Include="TaskPage.xaml" />
   </ItemGroup>
@@ -202,6 +217,10 @@
     </ClCompile>
     <ClCompile Include="HomePage.xaml.cpp">
       <DependentUpon>HomePage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="InfoWindow.xaml.cpp">
+      <DependentUpon>InfoWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -216,17 +235,23 @@
     <ClCompile Include="ProcessPage.xaml.cpp">
       <DependentUpon>ProcessPage.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="Process_ThreadPage.xaml.cpp">
+      <DependentUpon>Process_ThreadPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="SettingsPage.xaml.cpp">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="TaskPage.xaml.cpp">
       <DependentUpon>TaskPage.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="Utils\CppUtils.cpp" />
     <ClCompile Include="Utils\DriverUtils.cpp" />
     <ClCompile Include="Utils\KernelBase.cpp" />
     <ClCompile Include="Utils\KernelInstance.cpp" />
     <ClCompile Include="Utils\ProcessInfo.cpp" />
     <ClCompile Include="Utils\TaskUtils.cpp" />
+    <ClCompile Include="Utils\ThreadInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="HelpPage.idl">
@@ -234,14 +259,23 @@
       <SubType>Code</SubType>
     </Midl>
     <Midl Include="HomePage.idl" />
+    <Midl Include="InfoWindow.idl">
+      <DependentUpon>InfoWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="MainWindow.idl">
       <SubType>Code</SubType>
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Midl>
     <Midl Include="ProcessPage.idl" />
+    <Midl Include="Process_ThreadPage.idl">
+      <DependentUpon>Process_ThreadPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="SettingsPage.idl" />
     <Midl Include="TaskPage.idl" />
     <Midl Include="Utils\ProcessInfo.idl" />
+    <Midl Include="Utils\ThreadInfo.idl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\BadgeLogo.scale-100.png" />
@@ -313,14 +347,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\kernel.sys">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </None>
-    <None Include="Assets\RTCore64.sys">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</DeploymentContent>

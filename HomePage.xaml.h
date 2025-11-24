@@ -23,6 +23,8 @@ namespace winrt::StarlightGUI::implementation
         inline static winrt::hstring username;
         inline static winrt::hstring hitokoto;
         inline static winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage avatar{ nullptr };
+
+        inline static bool loaded = false;
     };
 }
 namespace winrt::StarlightGUI::factory_implementation

@@ -74,7 +74,7 @@ namespace winrt::StarlightGUI::implementation {
 
         // Auto close timer
         auto timer = DispatcherTimer();
-        timer.Interval(std::chrono::seconds(3));
+        timer.Interval(std::chrono::seconds(5));
         timer.Tick([infobar, parent, timer](auto&&, auto&&) {
             // Run fade out animation first
             Storyboard storyboard;

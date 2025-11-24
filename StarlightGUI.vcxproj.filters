@@ -20,12 +20,13 @@
     <Page Include="HelpPage.xaml">
       <Filter>Pages</Filter>
     </Page>
+    <Page Include="InfoWindow.xaml" />
+    <Page Include="Process_ThreadPage.xaml">
+      <Filter>Pages\Process</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
-    <Midl Include="Utils\ProcessInfo.idl">
-      <Filter>Utils</Filter>
-    </Midl>
     <Midl Include="HomePage.idl">
       <Filter>Pages</Filter>
     </Midl>
@@ -38,13 +39,16 @@
     <Midl Include="TaskPage.idl">
       <Filter>Pages</Filter>
     </Midl>
+    <Midl Include="Utils\ProcessInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
+    <Midl Include="Utils\ThreadInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="Utils\ProcessInfo.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Utils\KernelBase.cpp">
       <Filter>Utils\Advanced</Filter>
     </ClCompile>
@@ -57,6 +61,15 @@
     <ClCompile Include="Utils\TaskUtils.cpp">
       <Filter>Utils\Advanced</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\ProcessInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\ThreadInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\CppUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -67,9 +80,6 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Elevator.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\ProcessInfo.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Terminator.h">
@@ -86,6 +96,12 @@
     </ClInclude>
     <ClInclude Include="IOBase.h">
       <Filter>Utils\Advanced</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\ProcessInfo.h">
+      <Filter>Utils\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\ThreadInfo.h">
+      <Filter>Utils\Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +296,12 @@
     <Filter Include="Files">
       <UniqueIdentifier>{fb93a58b-69c8-46aa-a67f-73ac9aa049bf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Pages\Process">
+      <UniqueIdentifier>{0db6dfed-af4c-4fcb-aa19-fef12bce967c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Types">
+      <UniqueIdentifier>{8aee5cf3-fa01-400f-b899-e47608ef6f6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="app.manifest" />
@@ -291,9 +313,6 @@
     <None Include="packages.config" />
     <None Include="StarlightGUI_TemporaryKey.pfx" />
     <None Include="Assets\kernel.sys">
-      <Filter>Files</Filter>
-    </None>
-    <None Include="Assets\RTCore64.sys">
       <Filter>Files</Filter>
     </None>
   </ItemGroup>

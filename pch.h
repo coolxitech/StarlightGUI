@@ -35,6 +35,8 @@
 #include <wil/cppwinrt_helpers.h>
 #include <microsoft.ui.xaml.window.h>
 
+#include <Utils/ProcessInfo.h>
+#include <Utils/ThreadInfo.h>
+
 static inline winrt::hstring kernelPath = L"";
-static inline winrt::hstring rtcorePath = L"";
 static inline std::wstring unused = L"";

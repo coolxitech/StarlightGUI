@@ -11,7 +11,7 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.ApplicationModel.h>
 #include <winrt/Windows.Storage.h>
-#include <winrt/Windows.Storage.Pickers.h>
+#include <winrt/Microsoft.Windows.Storage.Pickers.h>
 #include <winrt/Microsoft.UI.h>
 #include <winrt/Microsoft.UI.Text.h>
 #include <winrt/Microsoft.UI.Xaml.h>
@@ -22,6 +22,7 @@
 #include <vector>
 #include <memory>
 #include <sstream>
+#include <MainWindow.xaml.h>
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -32,7 +33,7 @@ using namespace Microsoft::UI::Composition::SystemBackdrops;
 using namespace Windows::Foundation;
 using namespace Windows::ApplicationModel;
 using namespace Windows::Storage;
-using namespace Windows::Storage::Pickers;
+using namespace Microsoft::Windows::Storage::Pickers;
 
 
 namespace winrt::StarlightGUI::implementation
@@ -54,7 +55,7 @@ namespace winrt::StarlightGUI::implementation
         if (!processName.empty() && methodIndex > 0) {
             bool confirmed = true;
             if (methodIndex == 10 && ReadConfig("dangerous_confirm", true)) {
-                ContentDialog dialog = CreateContentDialog(L"警告", L"该方法需要加载驱动并获取内核级权限，可能导致系统出现问题，确定继续吗？\n必须以管理员身份运行！", L"关闭", XamlRoot());
+                ContentDialog dialog = CreateContentDialog(L"警告", L"该方法可能导致系统出现问题，确定继续吗？\n必须以管理员身份运行！", L"关闭", XamlRoot());
                 dialog.TitleTemplate(GetContentDialogInfoTemplate());
                 dialog.IsPrimaryButtonEnabled(true);
                 dialog.IsSecondaryButtonEnabled(true);
@@ -142,6 +143,33 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
+    winrt::Windows::Foundation::IAsyncAction ProcessPage::ElevatorExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        HWND hWnd = g_mainWindowInstance->GetWindowHandle();
+
+        FileOpenPicker picker = FileOpenPicker(winrt::Microsoft::UI::GetWindowIdFromWindow(hWnd));
+
+        picker.SuggestedStartLocation(PickerLocationId::ComputerFolder);
+        picker.FileTypeFilter().Append(L".exe");
+        picker.FileTypeFilter().Append(L".com");
+
+        auto& result = co_await picker.PickSingleFileAsync();
+
+        if (!result) co_return;
+
+        auto& file = co_await StorageFile::GetFileFromPathAsync(result.Path());
+
+        if (file != nullptr && file.IsAvailable()) {
+            if (file.FileType() == L".exe" || file.FileType() == L".com") {
+                ElevatorEditBox().TextDocument().SetText(TextSetOptions::None, file.Path());
+                CreateInfoBarAndDisplay(L"成功", L"已导入文件路径！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else {
+                CreateInfoBarAndDisplay(L"错误", L"请导入可执行程序文件！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            }
+        }
+    }
+
     winrt::fire_and_forget ProcessPage::ElevatorButton_Clicked(IInspectable const& sender, RoutedEventArgs const& e)
     {
         hstring processName;
@@ -188,28 +216,31 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    /*winrt::fire_and_forget ProcessPage::DriverLoaderExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    winrt::Windows::Foundation::IAsyncAction ProcessPage::DriverLoaderExploreButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        HWND hWnd = GetProcessFirstWindowHandle();
+        HWND hWnd = g_mainWindowInstance->GetWindowHandle();
 
-        FileOpenPicker picker = FileOpenPicker();
+        FileOpenPicker picker = FileOpenPicker(winrt::Microsoft::UI::GetWindowIdFromWindow(hWnd));
 
-        picker.as<IInitializeWithWindow>()->Initialize(hWnd);
         picker.SuggestedStartLocation(PickerLocationId::ComputerFolder);
         picker.FileTypeFilter().Append(L".sys");
 
-        auto file = co_await picker.PickSingleFileAsync();
+        auto& result = co_await picker.PickSingleFileAsync();
+
+        if (!result) co_return;
+
+        auto& file = co_await StorageFile::GetFileFromPathAsync(result.Path());
 
         if (file != nullptr && file.IsAvailable()) {
             if (file.FileType() == L".sys") {
-                DriverLoaderEditBox().TextDocument().SetText(TextSetOptions::None, file.Path());
+                ElevatorEditBox().TextDocument().SetText(TextSetOptions::None, file.Path());
                 CreateInfoBarAndDisplay(L"成功", L"已导入文件路径！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             else {
                 CreateInfoBarAndDisplay(L"错误", L"请导入.sys文件！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
         }
-    } */
+    }
 
     winrt::fire_and_forget ProcessPage::DriverLoaderLoadButton_Clicked(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         if (!IsRunningAsAdmin()) {
@@ -247,7 +278,7 @@ namespace winrt::StarlightGUI::implementation
             bool bypass = ReadConfig("bypass_signature", false);
 
             if (bypass) {
-                ContentDialog dialog = CreateContentDialog(L"警告", L"该方法需要加载驱动并获取内核级权限，可能导致系统出现问题，确定继续吗？\n必须以管理员身份运行！", L"关闭", XamlRoot());
+                ContentDialog dialog = CreateContentDialog(L"警告", L"该方法可能导致系统出现问题，确定继续吗？\n必须以管理员身份运行！", L"关闭", XamlRoot());
                 dialog.TitleTemplate(GetContentDialogInfoTemplate());
                 dialog.IsPrimaryButtonEnabled(true);
                 dialog.IsSecondaryButtonEnabled(true);
@@ -264,21 +295,17 @@ namespace winrt::StarlightGUI::implementation
             if (confirmed) {
                 bool result = true;
 
-                CreateInfoBarAndDisplay(L"g_ciOptions", std::to_wstring(KernelBase::GetCIOption()).c_str(), InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-
                 if (bypass) {
                     CreateInfoBarAndDisplay(L"警告", L"该操作可能随机导致蓝屏(PatchGuard)，若出现异常请再次尝试！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-                    result = KernelBase::HackCIOption(0);
-                    if (result) CreateInfoBarAndDisplay(L"信息", L"Set g_ciOptions = 0", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
-                    CreateInfoBarAndDisplay(L"g_ciOptions", std::to_wstring(KernelBase::GetCIOption()).c_str(), InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                    result = KernelInstance::DisableDSE();
+                    if (result) CreateInfoBarAndDisplay(L"信息", L"停止 Driver Signature Enforcement", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
                 }
 
                 if (result) result = DriverUtils::LoadDriver(filePath.c_str(), file.Name().c_str(), unused);
 
                 if (bypass) {
-                    result = KernelBase::HackCIOption(6);
-                    if (result) CreateInfoBarAndDisplay(L"信息", L"Set g_ciOptions = 6", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
-                    CreateInfoBarAndDisplay(L"g_ciOptions", std::to_wstring(KernelBase::GetCIOption()).c_str(), InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                    result = KernelInstance::EnableDSE();
+                    if (result) CreateInfoBarAndDisplay(L"信息", L"开启 Driver Signature Enforcement", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
                 }
 
                 if (result) {
@@ -288,8 +315,6 @@ namespace winrt::StarlightGUI::implementation
                     content = L"驱动加载失败: " + content;
                     infobar = CreateInfoBar(L"失败", content.c_str(), InfoBarSeverity::Error, XamlRoot());
                 }
-
-                CreateInfoBarAndDisplay(L"g_ciOptions", std::to_wstring(KernelBase::GetCIOption()).c_str(), InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
 
                 DisplayInfoBar(infobar, InfoBarPanel());
             }

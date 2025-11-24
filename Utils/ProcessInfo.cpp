@@ -15,7 +15,7 @@ namespace winrt::StarlightGUI::implementation
         return m_id;
     }
 
-    void ProcessInfo::Id(int32_t value)
+    void ProcessInfo::Id(int32_t const& value)
     {
         m_id = value;
     }
@@ -76,6 +76,36 @@ namespace winrt::StarlightGUI::implementation
 
     void ProcessInfo::ExecutablePath(hstring const& value) {
         m_executablePath = value;
+    }
+
+    hstring ProcessInfo::EProcess()
+    {
+        return m_eprocess;
+    }
+
+    void ProcessInfo::EProcess(hstring const& value)
+    {
+        m_eprocess = value;
+    }
+
+    ULONG64 ProcessInfo::EProcessULong()
+    {
+        return m_eprocessULong;
+    }
+
+    void ProcessInfo::EProcessULong(ULONG64 const& value)
+    {
+        m_eprocessULong = value;
+    }
+
+    hstring ProcessInfo::Status()
+    {
+        return m_status;
+    }
+
+    void ProcessInfo::Status(hstring const& value)
+    {
+        m_status = value;
     }
 
     ImageSource ProcessInfo::Icon()
