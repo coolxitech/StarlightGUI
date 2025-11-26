@@ -5,3 +5,7 @@
 /x64/Debug/StarlightGUI
 /.vs
 /.cr/personal
+/packages
+/StarlightGUI/Generated Files
+/StarlightGUI/packages
+/StarlightGUI/x64/Debug
