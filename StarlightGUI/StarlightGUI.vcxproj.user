@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <UapAppxPackageBuildMode>SideloadOnly</UapAppxPackageBuildMode>
+    <AppxShowAllApps>False</AppxShowAllApps>
+    <AppxBuildConfigurationSelection>x64</AppxBuildConfigurationSelection>
+    <PackageOptionalProjectsInIdeBuilds>False</PackageOptionalProjectsInIdeBuilds>
+    <Source>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</Source>
+    <SmallTileSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</SmallTileSource>
+    <MediumTileSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</MediumTileSource>
+    <WideTileSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</WideTileSource>
+    <LargeTileSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</LargeTileSource>
+    <AppIconSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</AppIconSource>
+    <SplashScreenSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</SplashScreenSource>
+    <PackageLogoSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</PackageLogoSource>
+    <BadgeLogoSource>D:\Stars\Projects\StarlightGUI\Assets\Starlight.png</BadgeLogoSource>
+  </PropertyGroup>
+</Project>
