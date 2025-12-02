@@ -46,7 +46,7 @@
                   Background="Transparent"/>
 
             <!-- 窗口控制按钮 -->
-            <essential:WindowCaptionButtonThemeWorkaround Window="{x:Bind}" Height="48"/>
+            <essential:WindowCaptionButtonThemeWorkaround Window="{x:Bind}"/>
         </Grid>
 
         <!-- 侧边栏区域 -->

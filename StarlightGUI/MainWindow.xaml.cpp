@@ -41,6 +41,7 @@ namespace winrt::StarlightGUI::implementation
 
         this->ExtendsContentIntoTitleBar(true);
         this->SetTitleBar(AppTitleBar());
+        this->AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
 
         // Õ‚π€
         LoadBackdrop();
