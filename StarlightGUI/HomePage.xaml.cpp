@@ -225,8 +225,8 @@ namespace winrt::StarlightGUI::implementation
 
                 auto& appFolder = Package::Current().InstalledLocation();
                 auto& assetsFolder = co_await appFolder.GetFolderAsync(L"Assets");
-                auto kernelFile = co_await assetsFolder.GetFileAsync(L"kernel.sys");
-                auto astralFile = co_await assetsFolder.GetFileAsync(L"AstralX.sys");
+                auto& kernelFile = co_await assetsFolder.GetFileAsync(L"kernel.sys");
+                auto& astralFile = co_await assetsFolder.GetFileAsync(L"AstralX.sys");
 
                 if (kernelFile) {
                     kernelPath = kernelFile.Path();

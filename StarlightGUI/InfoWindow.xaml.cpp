@@ -71,6 +71,16 @@ namespace winrt::StarlightGUI::implementation
             MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ThreadPage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(0));
         }
+        else if (invokedItem == L"¾ä±ú")
+        {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::Process_HandlePage>());
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(1));
+        }
+        else if (invokedItem == L"Ä£¿é")
+        {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::Process_ModulePage>());
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(2));
+        }
     }
 
     void InfoWindow::LoadBackdrop()

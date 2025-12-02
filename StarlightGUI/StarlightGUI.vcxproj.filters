@@ -24,6 +24,12 @@
     <Page Include="Process_ThreadPage.xaml">
       <Filter>Pages\Process</Filter>
     </Page>
+    <Page Include="Process_HandlePage.xaml">
+      <Filter>Pages\Process</Filter>
+    </Page>
+    <Page Include="Process_ModulePage.xaml">
+      <Filter>Pages\Process</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -43,6 +49,12 @@
       <Filter>Utils\Types</Filter>
     </Midl>
     <Midl Include="Utils\ThreadInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
+    <Midl Include="Utils\HandleInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
+    <Midl Include="Utils\MokuaiInfo.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
   </ItemGroup>
@@ -69,6 +81,12 @@
     </ClCompile>
     <ClCompile Include="Utils\CppUtils.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\HandleInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\MokuaiInfo.cpp">
+      <Filter>Utils\Types</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +123,12 @@
     </ClInclude>
     <ClInclude Include="Utils\AstralIO.h">
       <Filter>Utils\Advanced</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\HandleInfo.h">
+      <Filter>Utils\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\MokuaiInfo.h">
+      <Filter>Utils\Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

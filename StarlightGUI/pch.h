@@ -37,6 +37,8 @@
 
 #include <Utils/ProcessInfo.h>
 #include <Utils/ThreadInfo.h>
+#include <Utils/HandleInfo.h>
+#include <Utils/MokuaiInfo.h>
 
 static inline winrt::hstring kernelPath = L"";
 static inline winrt::hstring astralPath = L"";

@@ -117,6 +117,7 @@ namespace winrt::StarlightGUI::implementation {
 	BOOL KernelInstance::EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) {
 		if (!GetDriverDevice2() || !IsRunningAsAdmin()) return FALSE;
 
+
 		BOOL bRet = FALSE;
 		ENUM_PROCESS input = { 0 };
 
@@ -126,8 +127,9 @@ namespace winrt::StarlightGUI::implementation {
 		input.BufferSize = sizeof(PROCESS_DATA) * (targetList.size() + 50);
 		input.ProcessCount = 0;
 
-		DWORD bytesReturned;
-		BOOL status = DeviceIoControl(driverDevice2, IOCTL_AX_ENUM_PROCESSES, &input, sizeof(ENUM_PROCESS), &input, sizeof(ENUM_PROCESS), &bytesReturned, NULL);
+		BOOL status;
+
+		status = DeviceIoControl(driverDevice2, IOCTL_AX_ENUM_PROCESSES, &input, sizeof(ENUM_PROCESS), &input, sizeof(ENUM_PROCESS), 0, NULL);
 
 		if (status)
 		{
@@ -163,7 +165,7 @@ namespace winrt::StarlightGUI::implementation {
 					pi.Name(winrt::to_hstring(data.ImageName));
 					pi.Description(L"系统");
 					pi.ExecutablePath(winrt::to_hstring(data.ImagePath));
-					pi.EProcess(ULongToHexString((ULONG64)data.Eprocess));
+					pi.EProcess(ULongToHexString(data.Eprocess));
 					pi.EProcessULong((ULONG64)data.Eprocess);
 					pi.Status(L"系统");
 					pi.MemoryUsageByte(data.WorkingSetPrivateSize);
@@ -175,10 +177,10 @@ namespace winrt::StarlightGUI::implementation {
 		return status && bRet;
 	}
 
-	BOOL KernelInstance::EnumProcessThread(ULONG64 pEprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads)
+	BOOL KernelInstance::EnumProcessThread(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads)
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
-		BOOL bRet = FALSE;
+		BOOL status = FALSE;
 
 		struct INPUT
 		{
@@ -189,72 +191,170 @@ namespace winrt::StarlightGUI::implementation {
 
 		INPUT inputs = { 0 };
 
-		ULONG nRetLength = 0;
-		inputs.pEprocess = pEprocess;
+		ULONG nRet = 0;
+		inputs.pEprocess = eprocess;
 		inputs.nSize = sizeof(DATA_INFO) * 1000;
-		inputs.pBuffer = (DATA_INFO*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+		inputs.pBuffer = (PDATA_INFO)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
 
-		if (inputs.pBuffer)
+		status = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_THREAD_CIDTABLE, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) {
+			nRet = 1000;
+		}
+
+		if (status && nRet > 0 && inputs.pBuffer)
 		{
-			bRet = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_THREAD_CIDTABLE, &inputs, sizeof(INPUT), &nRetLength, sizeof(ULONG), 0, 0);
-			if (bRet && nRetLength > 0)
+			for (ULONG i = 0; i < nRet; i++)
 			{
-				for (ULONG i = 0; i < nRetLength; i++)
+				DATA_INFO data = inputs.pBuffer[i];
+				auto threadInfo = winrt::make<winrt::StarlightGUI::implementation::ThreadInfo>();
+				threadInfo.Id(data.ulongdata3);
+				threadInfo.EThread(ULongToHexString(data.ulong64data1));
+				threadInfo.Address(ULongToHexString(data.ulong64data2));
+				threadInfo.Priority(data.ulongdata2);
+				threadInfo.ModuleInfo(winrt::to_hstring(data.Module));
+				switch (data.ulongdata1)
 				{
-					auto threadInfo = winrt::make<winrt::StarlightGUI::implementation::ThreadInfo>();
-					threadInfo.Id(inputs.pBuffer[i].ulongdata3);
-					threadInfo.EThread(ULongToHexString(inputs.pBuffer[i].ulong64data1));
-					threadInfo.Address(ULongToHexString(inputs.pBuffer[i].ulong64data2));
-					threadInfo.Priority(inputs.pBuffer[i].ulongdata2);
-					threadInfo.ModuleInfo(winrt::to_hstring(inputs.pBuffer[i].Module));
-					switch (inputs.pBuffer[i].ulongdata1)
-					{
-					case ThreadState_Initialized:
-						threadInfo.Status(L"初始化");
-						break;
+				case ThreadState_Initialized:
+					threadInfo.Status(L"初始化");
+					break;
 
-					case ThreadState_Ready:
-						threadInfo.Status(L"就绪");
-						break;
+				case ThreadState_Ready:
+					threadInfo.Status(L"就绪");
+					break;
 
-					case ThreadState_Running:
-						threadInfo.Status(L"运行中");
-						break;
+				case ThreadState_Running:
+					threadInfo.Status(L"运行中");
+					break;
 
-					case ThreadState_Standby:
-						threadInfo.Status(L"待命");
-						break;
+				case ThreadState_Standby:
+					threadInfo.Status(L"待命");
+					break;
 
-					case ThreadState_Terminated:
-						threadInfo.Status(L"已退出");
-						break;
+				case ThreadState_Terminated:
+					threadInfo.Status(L"已退出");
+					break;
 
-					case ThreadState_Waiting:
-						threadInfo.Status(L"等待中");
-						break;
+				case ThreadState_Waiting:
+					threadInfo.Status(L"等待中");
+					break;
 
-					case ThreadState_Transition:
-						threadInfo.Status(L"Transition");
-						break;
+				case ThreadState_Transition:
+					threadInfo.Status(L"Transition");
+					break;
 
-					case ThreadState_DeferredReady:
-						threadInfo.Status(L"Deferred Ready");
-						break;
+				case ThreadState_DeferredReady:
+					threadInfo.Status(L"Deferred Ready");
+					break;
 
-					case ThreadState_GateWait:
-						threadInfo.Status(L"Gate Wait");
-						break;
+				case ThreadState_GateWait:
+					threadInfo.Status(L"Gate Wait");
+					break;
 
-					default:
-						threadInfo.Status(L"未知");
-						break;
-					}
-					threads.push_back(threadInfo);
+				default:
+					threadInfo.Status(L"未知");
+					break;
+				}
+				threads.push_back(threadInfo);
+			}
+		}
+
+		status = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
+		return status;
+	}
+
+	BOOL KernelInstance::EnumProcessHandle(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles)
+	{
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		BOOL bRet = FALSE;
+
+		struct INPUT
+		{
+			ULONG nSize;
+			ULONG PID;
+			PDATA_INFO pBuffer;
+		};
+		PDATA_INFO pProcessInfo = NULL;
+		INPUT inputs = { 0 };
+
+		inputs.nSize = sizeof(DATA_INFO) * 1000;
+		inputs.pBuffer = (PDATA_INFO)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+		inputs.PID = pid;
+
+		ULONG nRet = 0;
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_EXIST_HANDLE, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) {
+			nRet = 1000;
+		}
+
+		if (status && nRet > 0 && inputs.pBuffer) {
+			pProcessInfo = (PDATA_INFO)inputs.pBuffer;
+			for (ULONG i = 0; i < nRet; i++)
+			{
+				DATA_INFO data = pProcessInfo[i];
+				auto handleInfo = winrt::make<winrt::StarlightGUI::implementation::HandleInfo>();
+				handleInfo.Type(to_hstring(data.Module));
+				handleInfo.Object(ULongToHexString((ULONG64)data.pvoidaddressdata1));
+				handleInfo.Handle(ULongToHexString(data.ulong64data3));
+				handleInfo.Access(ULongToHexString(data.ulong64data1, 0, false, true));
+				handleInfo.Attributes(ULongToHexString(data.ulong64data2, 0, false, true));
+				handles.push_back(handleInfo);
+			}
+		}
+
+		OutputDebugString(std::to_wstring(nRet).c_str());
+
+		bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
+		return bRet;
+	}
+
+	BOOL KernelInstance::EnumProcessModule(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& modules)
+	{
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		BOOL bRet = FALSE;
+
+		struct INPUT
+		{
+			ULONG nSize;
+			PVOID eproc;
+			PDATA_INFO pBuffer;
+		};
+		PDATA_INFO pProcessInfo = NULL;
+		INPUT inputs = { 0 };
+
+		inputs.nSize = sizeof(DATA_INFO) * 1000;
+		inputs.pBuffer = (PDATA_INFO)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+		inputs.eproc = (PVOID)eprocess;
+
+		ULONG nRet = 0;
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_MODULE, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+
+		if (nRet > 1000) {
+			inputs.nSize = sizeof(DATA_INFO) * nRet;
+			inputs.pBuffer = (PDATA_INFO)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+			status = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_MODULE, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
+			nRet = 1000;
+		}
+
+		if (status && nRet > 0 && inputs.pBuffer) {
+			pProcessInfo = (PDATA_INFO)inputs.pBuffer;
+			if (nRet >= 1)
+			{
+				for (ULONG i = 0; i < nRet; i++)
+				{
+					DATA_INFO data = pProcessInfo[i];
+					auto moduleInfo = winrt::make<winrt::StarlightGUI::implementation::MokuaiInfo>();
+					moduleInfo.Name(to_hstring(data.Module));
+					moduleInfo.Address(ULongToHexString(data.ulong64data1));
+					moduleInfo.Size(ULongToHexString(data.ulong64data2, 0, false, true));
+					moduleInfo.Path(to_hstring(data.Module1));
+					modules.push_back(moduleInfo);
 				}
 			}
-
-			bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
 		}
+
+		bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
 		return bRet;
 	}
 

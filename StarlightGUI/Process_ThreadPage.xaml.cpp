@@ -154,6 +154,47 @@ namespace winrt::StarlightGUI::implementation
             co_return;
             });
         item2_1.Items().Append(item2_1_sub2);
+
+        // 分割线2
+        MenuFlyoutSeparator separator2;
+
+        // 选项3.1
+        MenuFlyoutSubItem item3_1;
+        item3_1.Icon(CreateFontIcon(L"\ue8c8"));
+        item3_1.Text(L"复制信息");
+        MenuFlyoutItem item3_1_sub1;
+        item3_1_sub1.Icon(CreateFontIcon(L"\ue943"));
+        item3_1_sub1.Text(L"TID");
+        item3_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(std::to_wstring(item.Id()))) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub1);
+        MenuFlyoutItem item3_1_sub2;
+        item3_1_sub2.Icon(CreateFontIcon(L"\ueb19"));
+        item3_1_sub2.Text(L"ETHREAD");
+        item3_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(item.EThread().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub2);
+        MenuFlyoutItem item3_1_sub3;
+        item3_1_sub3.Icon(CreateFontIcon(L"\ueb1d"));
+        item3_1_sub3.Text(L"地址");
+        item3_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(item.Address().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub3);
         
         menuFlyout.Items().Append(itemRefresh);
         menuFlyout.Items().Append(separatorR);
@@ -162,6 +203,8 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.Items().Append(item1_3);
         menuFlyout.Items().Append(separator1);
         menuFlyout.Items().Append(item2_1);
+        menuFlyout.Items().Append(separator2);
+        menuFlyout.Items().Append(item3_1);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
     }
@@ -177,27 +220,31 @@ namespace winrt::StarlightGUI::implementation
         co_await winrt::resume_background();
 
         std::vector<winrt::StarlightGUI::ThreadInfo> threads;
-        threads.reserve(100);
+        threads.reserve(50);
 
         // 获取线程列表
         try {
             KernelInstance::EnumProcessThread(processForInfoWindow.EProcessULong(), threads);
         }
-        catch (const std::exception& e) {
-            // 忽略异常
+        catch (...) {
+
         }
 
         co_await wil::resume_foreground(DispatcherQueue());
 
         m_threadList.Clear();
         for (const auto& thread : threads) {
+            if (thread.ModuleInfo().empty()) thread.ModuleInfo(L"(未知)");
+
             m_threadList.Append(thread);
         }
+
+        ApplySort(currentSortingOption, currentSortingType);
 
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
-        // 更新进程数量文本
+        // 更新线程数量文本
         std::wstringstream countText;
         countText << L"共 " << m_threadList.Size() << L" 个线程 (" << duration.count() << " ms)";
         ThreadCountText().Text(countText.str());
@@ -211,14 +258,15 @@ namespace winrt::StarlightGUI::implementation
         winrt::hstring columnName = clickedButton.Tag().as<winrt::hstring>();
 
         IdHeaderButton().Content(box_value(L"TID"));
-        EThreadHeaderButton().Content(box_value(L"ETHREAD"));
+        PriorityHeaderButton().Content(box_value(L"优先级"));
 
         if (columnName == L"Id")
         {
             ApplySort(m_isIdAscending, "Id");
-        }
-        else {
-            LoadThreadList();
+        } 
+        else if (columnName == L"Priority")
+        {
+            ApplySort(m_isPriorityAscending, "Priority");
         }
     }
 
@@ -231,7 +279,7 @@ namespace winrt::StarlightGUI::implementation
             sortedThreads.push_back(process);
         }
 
-        if (column == "TID") {
+        if (column == "Id") {
             if (isAscending) {
                 IdHeaderButton().Content(box_value(L"TID ↓"));
                 std::sort(sortedThreads.begin(), sortedThreads.end(), [](auto a, auto b) {
@@ -245,6 +293,20 @@ namespace winrt::StarlightGUI::implementation
                     return a.Id() > b.Id();
                     });
             }
+        } else if (column == "Priority") {
+            if (isAscending) {
+                PriorityHeaderButton().Content(box_value(L"优先级 ↓"));
+                std::sort(sortedThreads.begin(), sortedThreads.end(), [](auto a, auto b) {
+                    return a.Priority() < b.Priority();
+                    });
+
+            }
+            else {
+                PriorityHeaderButton().Content(box_value(L"优先级 ↑"));
+                std::sort(sortedThreads.begin(), sortedThreads.end(), [](auto a, auto b) {
+                    return a.Priority() > b.Priority();
+                    });
+            }
         }
 
         m_threadList.Clear();
@@ -253,6 +315,8 @@ namespace winrt::StarlightGUI::implementation
         }
 
         isAscending = !isAscending;
+        currentSortingOption = !isAscending;
+        currentSortingType = column;
     }
 
     template <typename T>

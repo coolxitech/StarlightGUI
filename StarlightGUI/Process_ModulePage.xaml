@@ -1,5 +1,5 @@
 <Page
-    x:Class="StarlightGUI.Process_ThreadPage"
+    x:Class="StarlightGUI.Process_ModulePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:StarlightGUI"
@@ -27,9 +27,9 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="线程" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="模块" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" 
-                                   Name="ThreadCountText" 
+                                   Name="ModuleCountText" 
                                    Text="正在加载..." 
                                    Margin="20,0,0,0" 
                                    VerticalAlignment="Center"
@@ -37,31 +37,27 @@
                     </Grid>
 
                     <!-- ListView，包含列标题和数据 -->
-                    <ListView x:Name="ThreadListView"
+                    <ListView x:Name="ModuleListView"
                               Grid.Row="1"
                               Background="Transparent"
                               CornerRadius="3"
                               BorderThickness="1"
                               BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                              RightTapped="ThreadListView_RightTapped">
+                              RightTapped="ModuleListView_RightTapped">
 
                         <!-- 列标题 -->
                         <ListView.Header>
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="160"/>
                                     <ColumnDefinition Width="160"/>
-                                    <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button x:Name="IdHeaderButton" Grid.Column="0" Height="30" Content="TID" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Id"/>
-                                <Button x:Name="EThreadHeaderButton" Grid.Column="1" Height="30" Content="ETHREAD" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="AddressHeaderButton" Grid.Column="2" Height="30" Content="地址" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="StatusHeaderButton" Grid.Column="3" Height="30" Content="状态" HorizontalAlignment="Stretch"/>
-                                <Button x:Name="PriorityHeaderButton" Grid.Column="4" Height="30" Content="优先级" HorizontalAlignment="Stretch" Click="ColumnHeader_Click" Tag="Priority"/>
-                                <Button x:Name="ModuleHeaderButton" Grid.Column="5" Height="30" Content="模块" HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="0" Height="30" Content="名称" HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="1" Height="30" Content="地址" HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="2" Height="30" Content="大小" HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="3" Height="30" Content="路径" HorizontalAlignment="Stretch"/>
                                 <Border Grid.Column="1"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Stretch"
@@ -77,16 +73,6 @@
                                         VerticalAlignment="Stretch"
                                         BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
                                         BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="4"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
-                                <Border Grid.Column="5"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Stretch"
-                                        BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                        BorderThickness="0,0,1,0" />
                             </Grid>
                         </ListView.Header>
 
@@ -94,17 +80,15 @@
                             <DataTemplate>
                                 <Grid Height="50">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="80"/>
                                         <ColumnDefinition Width="160"/>
                                         <ColumnDefinition Width="160"/>
-                                        <ColumnDefinition Width="80"/>
                                         <ColumnDefinition Width="80"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- TID -->
+                                    <!-- 名称 -->
                                     <TextBlock Grid.Column="0" 
-                                               Text="{Binding Id}" 
+                                               Text="{Binding Name}" 
                                                FontSize="12" 
                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
                                                HorizontalAlignment="Center"
@@ -119,9 +103,9 @@
                                             BorderThickness="0,0,1,0"
                                             Margin="-16,0,0,0"/>
 
-                                    <!-- ETHREAD -->
+                                    <!-- 地址 -->
                                     <TextBlock Grid.Column="1" 
-                                               Text="{Binding EThread}" 
+                                               Text="{Binding Address}" 
                                                FontSize="12" 
                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
                                                HorizontalAlignment="Center"
@@ -135,9 +119,9 @@
                                             BorderThickness="0,0,1,0" 
                                             Margin="-16,0,0,0"/>
 
-                                    <!-- Address -->
+                                    <!-- 大小 -->
                                     <TextBlock Grid.Column="2"
-                                               Text="{Binding Address}" 
+                                               Text="{Binding Size}" 
                                                FontSize="12" 
                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
                                                HorizontalAlignment="Center"
@@ -151,41 +135,9 @@
                                             BorderThickness="0,0,1,0" 
                                             Margin="-16,0,0,0"/>
 
-                                    <!-- Status -->
+                                    <!-- 路径 -->
                                     <TextBlock Grid.Column="3"
-                                               Text="{Binding Status}" 
-                                               FontSize="12" 
-                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               Margin="-32,0,0,0"/>
-
-                                    <Border Grid.Column="4"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Stretch"
-                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                            BorderThickness="0,0,1,0" 
-                                            Margin="-16,0,0,0"/>
-
-                                    <!-- Priority -->
-                                    <TextBlock Grid.Column="4"
-                                               Text="{Binding Priority}" 
-                                               FontSize="12" 
-                                               Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               Margin="-32,0,0,0"/>
-
-                                    <Border Grid.Column="5"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Stretch"
-                                            BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                            BorderThickness="0,0,1,0" 
-                                            Margin="-16,0,0,0"/>
-
-                                    <!-- Module -->
-                                    <TextBlock Grid.Column="4"
-                                               Text="{Binding Module}" 
+                                               Text="{Binding Path}" 
                                                FontSize="12" 
                                                Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"
                                                HorizontalAlignment="Center"

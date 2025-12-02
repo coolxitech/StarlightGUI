@@ -99,6 +99,8 @@
             <!-- 选项，从上到下 -->
             <controls:NavigationView.MenuItems>
                 <controls:NavigationViewItem Content="线程" Icon="List"/>
+                <controls:NavigationViewItem Content="句柄" Icon="Tag"/>
+                <controls:NavigationViewItem Content="模块" Icon="AddFriend"/>
             </controls:NavigationView.MenuItems>
 
             <!-- 内容 -->

@@ -30,8 +30,16 @@ namespace winrt::StarlightGUI::implementation {
 
     std::wstring ULongToHexString(ULONG64 value)
     {
+        return ULongToHexString(value, 16, true, true);
+    }
+
+    std::wstring ULongToHexString(ULONG64 value, int w, bool uppercase, bool prefix) {
         std::wstringstream ss;
-        ss << L"0x" << std::setw(16) << std::setfill(L'0') << std::hex << std::uppercase << value;
+        if (prefix) ss << L"0x";
+        if (w > 0) ss << std::setw(w);
+        ss << std::setfill(L'0') << std::hex;
+        if (uppercase) ss << std::uppercase;
+        ss << value;
         return ss.str();
     }
 }

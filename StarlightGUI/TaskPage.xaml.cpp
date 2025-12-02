@@ -388,6 +388,7 @@ namespace winrt::StarlightGUI::implementation
         item3_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (!KernelInstance::IsRunningAsAdmin()) {
                 CreateInfoBarAndDisplay(L"警告", L"使用该功能需要以管理员身份运行该程序！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+                co_return;
             }
             processForInfoWindow = item;
             auto infoWindow = winrt::make<InfoWindow>();
@@ -399,39 +400,50 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutSubItem item3_2;
         item3_2.Icon(CreateFontIcon(L"\ue8c8"));
         item3_2.Text(L"复制信息");
-        MenuFlyoutItem item3_1_sub1;
-        item3_1_sub1.Icon(CreateFontIcon(L"\ue8ac"));
-        item3_1_sub1.Text(L"名称");
-        item3_1_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+        MenuFlyoutItem item3_2_sub1;
+        item3_2_sub1.Icon(CreateFontIcon(L"\ue8ac"));
+        item3_2_sub1.Text(L"名称");
+        item3_2_sub1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.Name().c_str())) {
                 CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
-        item3_2.Items().Append(item3_1_sub1);
-        MenuFlyoutItem item3_1_sub2;
-        item3_1_sub2.Icon(CreateFontIcon(L"\ue943"));
-        item3_1_sub2.Text(L"PID");
-        item3_1_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+        item3_2.Items().Append(item3_2_sub1);
+        MenuFlyoutItem item3_2_sub2;
+        item3_2_sub2.Icon(CreateFontIcon(L"\ue943"));
+        item3_2_sub2.Text(L"PID");
+        item3_2_sub2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(std::to_wstring(item.Id()))) {
                 CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
-        item3_2.Items().Append(item3_1_sub2);
-        MenuFlyoutItem item3_1_sub3;
-        item3_1_sub3.Icon(CreateFontIcon(L"\uec6c"));
-        item3_1_sub3.Text(L"文件路径");
-        item3_1_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+        item3_2.Items().Append(item3_2_sub2);
+        MenuFlyoutItem item3_2_sub3;
+        item3_2_sub3.Icon(CreateFontIcon(L"\uec6c"));
+        item3_2_sub3.Text(L"文件路径");
+        item3_2_sub3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::CopyToClipboard(item.ExecutablePath().c_str())) {
                 CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
             });
-        item3_2.Items().Append(item3_1_sub3);
+        item3_2.Items().Append(item3_2_sub3);
+        MenuFlyoutItem item3_2_sub4;
+        item3_2_sub4.Icon(CreateFontIcon(L"\ueb19"));
+        item3_2_sub4.Text(L"EPROCESS");
+        item3_2_sub4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(item.EProcess().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item3_2.Items().Append(item3_2_sub4);
 
         // 选项5
         MenuFlyoutItem item3_3;
@@ -527,7 +539,7 @@ namespace winrt::StarlightGUI::implementation
             try {
                 KernelInstance::EnumProcess(processIndexMap, processes);
             }
-            catch (const std::exception& ex) {
+            catch (...) {
 
             }
 
@@ -562,7 +574,7 @@ namespace winrt::StarlightGUI::implementation
             if (process.CpuUsage().empty()) process.CpuUsage(L"-1 (未知)");
             if (process.MemoryUsage().empty()) process.MemoryUsage(L"-1 (未知)");
             if (process.Status().empty()) process.Status(L"运行中");
-            if (process.EProcess().empty()) process.EProcess(L"未知");
+            if (process.EProcess().empty()) process.EProcess(L"(未知)");
 
             // 寻找选中目标
             if (selectedItemId == process.Id()) selectedTarget = process;

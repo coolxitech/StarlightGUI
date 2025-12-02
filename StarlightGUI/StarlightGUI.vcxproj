@@ -107,6 +107,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SyncCThrow</ExceptionHandling>
     </ClCompile>
     <Link>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">RequireAdministrator</UACExecutionLevel>
@@ -173,6 +174,14 @@
     <ClInclude Include="ProcessPage.xaml.h">
       <DependentUpon>ProcessPage.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="Process_HandlePage.xaml.h">
+      <DependentUpon>Process_HandlePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="Process_ModulePage.xaml.h">
+      <DependentUpon>Process_ModulePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="Process_ThreadPage.xaml.h">
       <DependentUpon>Process_ThreadPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -187,7 +196,9 @@
     <ClInclude Include="Utils\Config.h" />
     <ClInclude Include="Utils\CppUtils.h" />
     <ClInclude Include="Utils\Elevator.h" />
+    <ClInclude Include="Utils\HandleInfo.h" />
     <ClInclude Include="Utils\KernelBase.h" />
+    <ClInclude Include="Utils\MokuaiInfo.h" />
     <ClInclude Include="Utils\ProcessInfo.h" />
     <ClInclude Include="Utils\TaskUtils.h" />
     <ClInclude Include="Utils\Terminator.h" />
@@ -205,6 +216,12 @@
     </Page>
     <Page Include="MainWindow.xaml" />
     <Page Include="ProcessPage.xaml" />
+    <Page Include="Process_HandlePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Process_ModulePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Process_ThreadPage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -236,9 +253,18 @@
     <ClCompile Include="ProcessPage.xaml.cpp">
       <DependentUpon>ProcessPage.xaml</DependentUpon>
     </ClCompile>
+    <ClCompile Include="Process_HandlePage.xaml.cpp">
+      <DependentUpon>Process_HandlePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="Process_ModulePage.xaml.cpp">
+      <DependentUpon>Process_ModulePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="Process_ThreadPage.xaml.cpp">
       <DependentUpon>Process_ThreadPage.xaml</DependentUpon>
       <SubType>Code</SubType>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Async</ExceptionHandling>
     </ClCompile>
     <ClCompile Include="SettingsPage.xaml.cpp">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
@@ -248,8 +274,10 @@
     </ClCompile>
     <ClCompile Include="Utils\CppUtils.cpp" />
     <ClCompile Include="Utils\DriverUtils.cpp" />
+    <ClCompile Include="Utils\HandleInfo.cpp" />
     <ClCompile Include="Utils\KernelBase.cpp" />
     <ClCompile Include="Utils\KernelInstance.cpp" />
+    <ClCompile Include="Utils\MokuaiInfo.cpp" />
     <ClCompile Include="Utils\ProcessInfo.cpp" />
     <ClCompile Include="Utils\TaskUtils.cpp" />
     <ClCompile Include="Utils\ThreadInfo.cpp" />
@@ -269,12 +297,22 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Midl>
     <Midl Include="ProcessPage.idl" />
+    <Midl Include="Process_HandlePage.idl">
+      <DependentUpon>Process_HandlePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <Midl Include="Process_ModulePage.idl">
+      <DependentUpon>Process_ModulePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="Process_ThreadPage.idl">
       <DependentUpon>Process_ThreadPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
     <Midl Include="SettingsPage.idl" />
     <Midl Include="TaskPage.idl" />
+    <Midl Include="Utils\HandleInfo.idl" />
+    <Midl Include="Utils\MokuaiInfo.idl" />
     <Midl Include="Utils\ProcessInfo.idl" />
     <Midl Include="Utils\ThreadInfo.idl" />
   </ItemGroup>
