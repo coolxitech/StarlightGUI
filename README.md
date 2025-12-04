@@ -7,6 +7,9 @@
   <img src="https://img.shields.io/badge/Language-C++/WinRT-0078d7.svg" alt="Language">
 </p>
 
+**主页**: [![Bilibili](https://img.shields.io/badge/Bilibili-Stars_Azusa-white?style=flat-square&logo=bilibili&logoColor=white&labelColor=ff69b4)](https://space.bilibili.com/670866766)  
+**赞助**: <a href="https://afdian.com/a/StarsAzusa" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="40" width="130"></a>
+
 ## 简介
 
 Starlight GUI 是一个基于 C++/WinRT 的 WinUI3 开源项目，为开发者的兴趣作品，致力于打造一个功能强大、界面美观、易于使用的开源 Windows 11 工具箱。项目采用原生的 WinUI3 设计，完美贴合 Windows 11 系统的操作习惯和视觉风格。拥有很多实用功能和自定义设置，改善日常电脑的使用体验。  
