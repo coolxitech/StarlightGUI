@@ -508,7 +508,8 @@ namespace winrt::StarlightGUI::implementation {
 					fileInfo.Path(path + L"\\" + data.wcstr);
 					fileInfo.Flag(data.ulongdata1);
 					fileInfo.Directory(data.ulongdata1 != MFT_RECORD_FLAG_FILE);
-					fileInfo.Size(data.ulong64data2);
+					fileInfo.Size(FormatMemorySize(data.ulong64data2));
+					fileInfo.SizeULong(data.ulong64data2);
 					fileInfo.MFTID(data.ulong64data1);
 					result.push_back(fileInfo);
 				}
@@ -545,9 +546,6 @@ namespace winrt::StarlightGUI::implementation {
 					auto fileInfo = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
 					fileInfo.Name(data.wcstr);
 					fileInfo.Path(path + L"\\" + data.wcstr);
-					fileInfo.Flag(data.ulongdata1);
-					fileInfo.Directory(data.ulongdata1 != MFT_RECORD_FLAG_FILE);
-					files.push_back(fileInfo);
 					if (data.ulongdata4 == FALSE)
 					{
 						fileInfo.Flag(MFT_RECORD_FLAG_FILE);
@@ -558,6 +556,7 @@ namespace winrt::StarlightGUI::implementation {
 						fileInfo.Flag(MFT_RECORD_FLAG_DIRECTORY);
 						fileInfo.Directory(true);
 					}
+					files.push_back(fileInfo);
 				}
 			}
 		}
@@ -572,9 +571,6 @@ namespace winrt::StarlightGUI::implementation {
 					auto fileInfo = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
 					fileInfo.Name(data.wcstr);
 					fileInfo.Path(path + L"\\" + data.wcstr);
-					fileInfo.Flag(data.ulongdata1);
-					fileInfo.Directory(data.ulongdata1 != MFT_RECORD_FLAG_FILE);
-					files.push_back(fileInfo);
 					if (data.ulongdata4 == FALSE)
 					{
 						fileInfo.Flag(MFT_RECORD_FLAG_FILE);
@@ -585,11 +581,120 @@ namespace winrt::StarlightGUI::implementation {
 						fileInfo.Flag(MFT_RECORD_FLAG_DIRECTORY);
 						fileInfo.Directory(true);
 					}
+					files.push_back(fileInfo);
 				}
 			}
 		}
 		bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
 		return bRet;
+	}
+
+	BOOL KernelInstance::_DeleteFile(std::wstring path) {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		WCHAR targetPath[MAX_PATH];
+		wcscpy_s(targetPath, L"\\??\\");
+		wcscat_s(targetPath, path.c_str());
+
+		UNICODE_STRING filePath[MAX_PATH];
+		RtlInitUnicodeString(filePath, targetPath);
+
+		return DeviceIoControl(driverDevice, IOCTL_DELETE_FILE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::MurderFile(std::wstring path) {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		WCHAR targetPath[MAX_PATH];
+		wcscpy_s(targetPath, L"\\??\\");
+		wcscat_s(targetPath, path.c_str());
+
+		UNICODE_STRING filePath[MAX_PATH];
+		RtlInitUnicodeString(filePath, targetPath);
+
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_FORCE_DELETE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
+
+		if (status) {
+			DeleteFileW(path.c_str());
+		}
+
+		return status;
+	}
+
+	BOOL KernelInstance::DeleteFileAuto(std::wstring path) {
+		if (!fs::exists(path)) {
+			return FALSE;
+		}
+
+		if (!fs::is_directory(path)) {
+			return DeleteFileW(path.c_str());
+		}
+		else {
+			for (const auto& entry : fs::directory_iterator(path)) {
+				if (fs::is_directory(entry)) {
+					DeleteFileAuto(entry.path().wstring());
+				}
+				if (fs::is_regular_file(entry)) {
+					DeleteFileW(entry.path().wstring().c_str());
+				}
+			}
+			return RemoveDirectoryW(path.c_str());
+		}
+	}
+
+	BOOL KernelInstance::_DeleteFileAuto(std::wstring path) {
+		if (!fs::exists(path)) {
+			return FALSE;
+		}
+
+		if (!fs::is_directory(path)) {
+			return _DeleteFile(path);
+		}
+		else {
+			for (const auto& entry : fs::directory_iterator(path)) {
+				if (fs::is_directory(entry)) {
+					_DeleteFileAuto(entry.path().wstring());
+				}
+				if (fs::is_regular_file(entry)) {
+					_DeleteFile(entry.path().wstring());
+				}
+			}
+			return RemoveDirectoryW(path.c_str());
+		}
+	}
+
+	BOOL KernelInstance::MurderFileAuto(std::wstring path) {
+		if (!fs::exists(path)) {
+			return FALSE;
+		}
+
+		if (!fs::is_directory(path)) {
+			return MurderFile(path);
+		}
+		else {
+			for (const auto& entry : fs::directory_iterator(path)) {
+				if (fs::is_directory(entry)) {
+					MurderFileAuto(entry.path().wstring());
+				}
+				if (fs::is_regular_file(entry)) {
+					MurderFile(entry.path().wstring());
+				}
+			}
+			return RemoveDirectoryW(path.c_str());
+		}
+	}
+
+	BOOL KernelInstance::LockFile(std::wstring path) {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		WCHAR targetPath[MAX_PATH];
+		wcscpy_s(targetPath, L"\\??\\");
+		wcscat_s(targetPath, path.c_str());
+
+		UNICODE_STRING filePath[MAX_PATH];
+		RtlInitUnicodeString(filePath, targetPath);
+
+		return DeviceIoControl(driverDevice, IOCTL_LOCK_FILE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
 	}
 
 	BOOL KernelInstance::DisableDSE() {

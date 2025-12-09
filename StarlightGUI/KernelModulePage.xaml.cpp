@@ -70,7 +70,7 @@ namespace winrt::StarlightGUI::implementation
 
     void KernelModulePage::KernelModuleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
     {
-        auto listView = sender.as<ListView>();
+        auto listView = KernelModuleListView();
 
         if (auto fe = e.OriginalSource().try_as<FrameworkElement>())
         {
@@ -94,7 +94,7 @@ namespace winrt::StarlightGUI::implementation
         item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::UnloadDriver(item.DriverObjectULong())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功卸载模块: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadKernelModuleList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法卸载模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -107,7 +107,7 @@ namespace winrt::StarlightGUI::implementation
         item1_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (KernelInstance::HideDriver(item.DriverObjectULong())) {
                 CreateInfoBarAndDisplay(L"成功", L"成功隐藏模块: " + item.Name(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                LoadKernelModuleList();
+                WaitAndReloadAsync(1000);
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法隐藏模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             co_return;
@@ -349,13 +349,7 @@ namespace winrt::StarlightGUI::implementation
     {
         if (!loaded) return;
 
-        reloadTimer.Stop();
-        reloadTimer.Interval(std::chrono::milliseconds(200));
-        reloadTimer.Tick([this](auto&&, auto&&) {
-            LoadKernelModuleList();
-            reloadTimer.Stop();
-            });
-        reloadTimer.Start();
+        WaitAndReloadAsync(200);
     }
 
     bool KernelModulePage::ApplyFilter(const winrt::StarlightGUI::KernelModuleInfo& kernelModule, hstring& query) {
@@ -431,6 +425,20 @@ namespace winrt::StarlightGUI::implementation
             }
             else CreateInfoBarAndDisplay(L"失败", L"无法卸载模块: " + item.Name() + L", 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
         }
+        co_return;
+    }
+
+    winrt::Windows::Foundation::IAsyncAction KernelModulePage::WaitAndReloadAsync(int interval) {
+        auto lifetime = get_strong();
+
+        reloadTimer.Stop();
+        reloadTimer.Interval(std::chrono::milliseconds(interval));
+        reloadTimer.Tick([this](auto&&, auto&&) {
+            LoadKernelModuleList();
+            reloadTimer.Stop();
+            });
+        reloadTimer.Start();
+
         co_return;
     }
 

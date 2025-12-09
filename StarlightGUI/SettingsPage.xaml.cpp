@@ -15,6 +15,7 @@ using namespace Microsoft::Windows::Storage::Pickers;
 namespace winrt::StarlightGUI::implementation
 {
     static bool loaded;
+    static std::string enum_file_mode;
     static std::string background_type;
     static std::string mica_type;
     static std::string acrylic_type;
@@ -31,6 +32,7 @@ namespace winrt::StarlightGUI::implementation
         loaded = false;
 
         // idk why it cant understand the fucking boolean
+        enum_file_mode = ReadConfig("enum_file_mode", "ENUM_FILE_NTAPI");
         background_type = ReadConfig("background_type", "Static");
         mica_type = ReadConfig("mica_type", "BaseAlt");
         acrylic_type = ReadConfig("acrylic_type", "Default");
@@ -46,6 +48,16 @@ namespace winrt::StarlightGUI::implementation
     }
 
     void SettingsPage::InitializeOptions() {
+        if (enum_file_mode == "ENUM_FILE_IRP") {
+            EnumFileModeComboBox().SelectedIndex(1);
+        }
+        else if (enum_file_mode == "ENUM_FILE_NTFSPARSER") {
+            EnumFileModeComboBox().SelectedIndex(2);
+        }
+        else {
+            EnumFileModeComboBox().SelectedIndex(0);
+        }
+
         if (background_type == "Mica") {
             BackgroundComboBox().SelectedIndex(1);
         }
@@ -100,6 +112,25 @@ namespace winrt::StarlightGUI::implementation
 
         ImagePathText().Text(to_hstring(background_image));
         ImageOpacitySlider().Value(image_opacity);
+    }
+
+    void SettingsPage::EnumFileModeComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)
+    {
+        if (!loaded) return;
+
+        if (EnumFileModeComboBox().SelectedIndex() == 1)
+        {
+            enum_file_mode = "ENUM_FILE_IRP";
+        }
+        else if (EnumFileModeComboBox().SelectedIndex() == 2)
+        {
+            enum_file_mode = "ENUM_FILE_NTFSPARSER";
+        }
+        else
+        {
+            enum_file_mode = "ENUM_FILE_NTAPI";
+        }
+        SaveConfig("enum_file_mode", enum_file_mode);
     }
 
     void SettingsPage::BackgroundComboBox_SelectionChanged(IInspectable const& sender, SelectionChangedEventArgs const& e)

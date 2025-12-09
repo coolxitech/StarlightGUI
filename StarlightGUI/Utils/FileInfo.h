@@ -14,14 +14,23 @@ namespace winrt::StarlightGUI::implementation
         hstring Path();
         void Path(hstring const& value);
 
+        hstring ModifyTime();
+        void ModifyTime(hstring const& value);
+
+        ULONG64 ModifyTimeULong();
+        void ModifyTimeULong(ULONG64 const& value);
+
         bool Directory();
         void Directory(bool const& value);
 
         ULONG Flag();
         void Flag(ULONG const& value);
 
-        ULONG64 Size();
-        void Size(ULONG64 const& value);
+        hstring Size();
+        void Size(hstring const& value);
+
+        ULONG64 SizeULong();
+        void SizeULong(ULONG64 const& value);
 
         ULONG64 MFTID();
         void MFTID(ULONG64 const& value);
@@ -32,8 +41,11 @@ namespace winrt::StarlightGUI::implementation
     private:
         hstring m_name{ L"" };
         hstring m_path{ L"" };
+        hstring m_modifyTime{ L"" };
+        ULONG64 m_modifyTimeULong{ 0 };
         ULONG m_flag{ 0 };
-        ULONG64 m_size{ 0 };
+        hstring m_size{ L"" };
+        ULONG64 m_sizeULong{ 0 };
         ULONG64 m_mftId{ 0 };
         bool m_directory{ false };
         winrt::Microsoft::UI::Xaml::Media::ImageSource m_icon{ nullptr };

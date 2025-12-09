@@ -38,9 +38,6 @@ using namespace Windows::System;
 
 namespace winrt::StarlightGUI::implementation
 {
-    const static uint64_t KB = 1024;
-    const static uint64_t MB = KB * 1024;
-    const static uint64_t GB = MB * 1024;
     static std::unordered_map<hstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
     static std::unordered_map<hstring, hstring> descriptionCache;
     static std::unordered_map<DWORD, int> processIndexMap;
@@ -91,7 +88,7 @@ namespace winrt::StarlightGUI::implementation
 
     void TaskPage::ProcessListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
     {
-        auto listView = sender.as<ListView>();
+        auto listView = ProcessListView();
 
         if (auto fe = e.OriginalSource().try_as<FrameworkElement>())
         {
@@ -107,7 +104,6 @@ namespace winrt::StarlightGUI::implementation
         auto item = listView.SelectedItem().as<winrt::StarlightGUI::ProcessInfo>();
 
         MenuFlyout menuFlyout;
-
 
         // 选项1.1
         MenuFlyoutItem item1_1;
@@ -681,27 +677,6 @@ namespace winrt::StarlightGUI::implementation
         process.Icon(iconCache[process.ExecutablePath()].value());
 
         co_return;
-    }
-
-    winrt::hstring TaskPage::FormatMemorySize(uint64_t bytes)
-    {
-        std::wstringstream ss;
-        ss << std::fixed << std::setprecision(1);
-
-        if (bytes >= GB) {
-            ss << (static_cast<double>(bytes) / GB) << " GB";
-        }
-        else if (bytes >= MB) {
-            ss << (static_cast<double>(bytes) / MB) << " MB";
-        }
-        else if (bytes >= KB) {
-            ss << (static_cast<double>(bytes) / KB) << " KB";
-        }
-        else {
-            ss << bytes << " B";
-        }
-
-        return to_hstring(ss.str().c_str());
     }
 
     void TaskPage::ColumnHeader_Click(IInspectable const& sender, RoutedEventArgs const& e)

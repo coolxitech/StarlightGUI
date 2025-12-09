@@ -30,6 +30,26 @@ namespace winrt::StarlightGUI::implementation
         m_path = value;
     }
 
+    hstring FileInfo::ModifyTime()
+    {
+        return m_modifyTime;
+    }
+
+    void FileInfo::ModifyTime(hstring const& value)
+    {
+        m_modifyTime = value;
+    }
+
+    ULONG64 FileInfo::ModifyTimeULong()
+    {
+        return m_modifyTimeULong;
+    }
+
+    void FileInfo::ModifyTimeULong(ULONG64 const& value)
+    {
+        m_modifyTimeULong = value;
+    }
+
     bool FileInfo::Directory() 
     {
         return m_directory;
@@ -50,14 +70,24 @@ namespace winrt::StarlightGUI::implementation
         m_flag = value;
     }
 
-    ULONG64 FileInfo::Size()
+    hstring FileInfo::Size()
     {
         return m_size;
     }
 
-    void FileInfo::Size(ULONG64 const& value)
+    void FileInfo::Size(hstring const& value)
     {
         m_size = value;
+    }
+
+    ULONG64 FileInfo::SizeULong()
+    {
+        return m_sizeULong;
+    }
+
+    void FileInfo::SizeULong(ULONG64 const& value)
+    {
+        m_sizeULong = value;
     }
 
     ULONG64 FileInfo::MFTID()

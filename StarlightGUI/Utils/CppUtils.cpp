@@ -9,6 +9,10 @@
 #include <limits>
 
 namespace winrt::StarlightGUI::implementation {
+    const static uint64_t KB = 1024;
+    const static uint64_t MB = KB * 1024;
+    const static uint64_t GB = MB * 1024;
+
     std::wstring GenerateRandomString(size_t length) {
         const std::wstring charset =
             L"0123456789"
@@ -70,6 +74,27 @@ namespace winrt::StarlightGUI::implementation {
         ss << std::setfill(L'0') << std::hex;
         if (uppercase) ss << std::uppercase;
         ss << value;
+        return ss.str();
+    }
+
+    std::wstring FormatMemorySize(uint64_t bytes)
+    {
+        std::wstringstream ss;
+        ss << std::fixed << std::setprecision(1);
+
+        if (bytes >= GB) {
+            ss << (static_cast<double>(bytes) / GB) << " GB";
+        }
+        else if (bytes >= MB) {
+            ss << (static_cast<double>(bytes) / MB) << " MB";
+        }
+        else if (bytes >= KB) {
+            ss << (static_cast<double>(bytes) / KB) << " KB";
+        }
+        else {
+            ss << bytes << " B";
+        }
+
         return ss.str();
     }
 }

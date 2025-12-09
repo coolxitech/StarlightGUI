@@ -18,45 +18,137 @@ namespace winrt::StarlightGUI::implementation
     static std::unordered_map<hstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
     static HDC hdc{ nullptr };
     static bool loaded;
+    static hstring safeAcceptedPath = L"";
 
-	FilePage::FilePage() {
-		InitializeComponent();
+    FilePage::FilePage() {
+        InitializeComponent();
 
         loaded = false;
 
         hdc = GetDC(NULL);
-		FileListView().ItemsSource(m_fileList);
+        FileListView().ItemsSource(m_fileList);
 
-        if (!KernelInstance::IsRunningAsAdmin()) {
-            RefreshButton().IsEnabled(false);
-            FileCountText().Text(L"请以管理员身份运行！");
-            CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-        }
-        else {
-            m_scrollCheckTimer = winrt::Microsoft::UI::Xaml::DispatcherTimer();
-            m_scrollCheckTimer.Interval(std::chrono::milliseconds(100));
-            m_scrollCheckTimer.Tick([this](auto&&, auto&&) {
-                CheckAndLoadMoreItems();
-                });
+        m_scrollCheckTimer = winrt::Microsoft::UI::Xaml::DispatcherTimer();
+        m_scrollCheckTimer.Interval(std::chrono::milliseconds(100));
+        m_scrollCheckTimer.Tick([this](auto&&, auto&&) {
+            CheckAndLoadMoreItems();
+            });
 
-            this->Loaded([this](auto&&, auto&&) {
-                m_scrollCheckTimer.Start();
-                LoadFileList();
-                loaded = true;
-                });
+        this->Loaded([this](auto&&, auto&&) {
+            m_scrollCheckTimer.Start();
+            LoadFileList();
+            loaded = true;
+            });
 
-            this->Unloaded([this](auto&&, auto&&) {
-                if (m_scrollCheckTimer) {
-                    m_scrollCheckTimer.Stop();
-                }
-                ReleaseDC(NULL, hdc);
-                });
-        }
-	}
+        this->Unloaded([this](auto&&, auto&&) {
+            if (m_scrollCheckTimer) {
+                m_scrollCheckTimer.Stop();
+            }
+            ReleaseDC(NULL, hdc);
+            });
+    }
 
 	void FilePage::FileListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
 	{
-		// TODO
+        auto listView = FileListView();
+
+        if (auto fe = e.OriginalSource().try_as<FrameworkElement>())
+        {
+            auto container = FindParent<ListViewItem>(fe);
+            if (container)
+            {
+                listView.SelectedItem(container.Content());
+            }
+        }
+
+        if (!listView.SelectedItem()) return;
+
+        auto item = listView.SelectedItem().as<winrt::StarlightGUI::FileInfo>();
+
+        // 跳过上个文件夹选项
+        if (item.Flag() == 999) return;
+
+        MenuFlyout menuFlyout;
+
+        /*
+        * 注意，由于这里是磁盘IO，我们不要使用异步，否则刷新时可能会出问题
+        */
+        // 选项1.1
+        MenuFlyoutItem item1_1;
+        item1_1.Icon(CreateFontIcon(L"\ue8e5"));
+        item1_1.Text(L"打开");
+        item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
+            if (item.Directory()) {
+                currentDirectory = currentDirectory + L"\\" + item.Name();
+                LoadFileList();
+            }
+            else ShellExecuteW(nullptr, L"open", item.Path().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+            });
+
+        MenuFlyoutSeparator separator1;
+
+        // 选项2.1
+        MenuFlyoutItem item2_1;
+        item2_1.Icon(CreateFontIcon(L"\ue74d"));
+        item2_1.Text(L"删除");
+        item2_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
+            if (KernelInstance::DeleteFileAuto(item.Path().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            });
+
+        MenuFlyoutItem item2_2;
+        item2_2.Icon(CreateFontIcon(L"\ue733"));
+        item2_2.Text(L"删除 (内核)");
+        item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
+            if (KernelInstance::_DeleteFileAuto(item.Path().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            });
+        if (!KernelInstance::IsRunningAsAdmin()) item2_2.IsEnabled(false);
+
+        MenuFlyoutItem item2_3;
+        item2_3.Icon(CreateFontIcon(L"\uf5ab"));
+        item2_3.Text(L"强制删除");
+        item2_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
+            if (safeAcceptedPath == item.Path() || !ReadConfig("dangerous_confirm", true)) {
+                if (KernelInstance::MurderFileAuto(item.Path().c_str())) {
+                    CreateInfoBarAndDisplay(L"成功", L"成功强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    WaitAndReloadAsync(1000);
+                }
+                else CreateInfoBarAndDisplay(L"失败", L"无法强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            }
+            else {
+                safeAcceptedPath = item.Path();
+                CreateInfoBarAndDisplay(L"警告", L"该操作可能导致系统崩溃或文件数据损坏，如果确认继续请再次点击！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+            }
+            });
+        if (!KernelInstance::IsRunningAsAdmin()) item2_3.IsEnabled(false);
+
+        MenuFlyoutItem item2_4;
+        item2_4.Icon(CreateFontIcon(L"\ue72e"));
+        item2_4.Text(L"锁定");
+        item2_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
+            if (KernelInstance::LockFile(item.Path().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"成功锁定文件: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                WaitAndReloadAsync(1000);
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法锁定文件: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            });
+        if (!KernelInstance::IsRunningAsAdmin() || item.Directory()) item2_4.IsEnabled(false);
+
+        menuFlyout.Items().Append(item1_1);
+        menuFlyout.Items().Append(separator1);
+        menuFlyout.Items().Append(item2_1);
+        menuFlyout.Items().Append(item2_2);
+        menuFlyout.Items().Append(item2_3);
+        menuFlyout.Items().Append(item2_4);
+
+        menuFlyout.ShowAt(listView, e.GetPosition(listView));
 	}
 
 	void FilePage::FileListView_DoubleTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs const& e)
@@ -119,10 +211,6 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::Windows::Foundation::IAsyncAction FilePage::LoadFileList()
     {
-        if (!KernelInstance::IsRunningAsAdmin()) {
-            co_return;
-        }
-
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -139,17 +227,21 @@ namespace winrt::StarlightGUI::implementation
         co_await winrt::resume_background();
 
         try {
-            KernelInstance::QueryFile(path, m_allFiles);
+            if (KernelInstance::IsRunningAsAdmin()) KernelInstance::QueryFile(path, m_allFiles);
+            else QueryFile(path, m_allFiles);
         }
-        catch (...) {}        
+        catch (...) {}      
+
+
+        for (const auto& file : m_allFiles) {
+            co_await GetFileInfoAsync(file);
+
+            file.Path(FixBackSplash(file.Path()));
+        }
 
         co_await wil::resume_foreground(DispatcherQueue());
 
         ApplySort(currentSortingOption, currentSortingType);
-
-        for (const auto& file : m_allFiles) {
-            file.Path(FixBackSplash(file.Path()));
-        }
 
         // 将文件夹放在文件前面
         std::stable_sort(m_allFiles.begin(), m_allFiles.end(), [](const auto& a, const auto& b) {
@@ -158,7 +250,6 @@ namespace winrt::StarlightGUI::implementation
             }
             return false;
             });
-
 
         AddPreviousItem();
 
@@ -170,7 +261,49 @@ namespace winrt::StarlightGUI::implementation
         FileCountText().Text(countText.str());
         LoadingRing().IsActive(false);
 
+        // 立刻加载一次
         LoadMoreFiles();
+    }
+
+    winrt::Windows::Foundation::IAsyncAction FilePage::GetFileInfoAsync(const winrt::StarlightGUI::FileInfo& file)
+    {
+        WIN32_FIND_DATA findFileData;
+        HANDLE hFind = FindFirstFile(file.Path().c_str(), &findFileData);
+
+        if (hFind != INVALID_HANDLE_VALUE) {
+            if (file.SizeULong() == 0) {
+                file.SizeULong(((ULONG64)findFileData.nFileSizeHigh << 32) | findFileData.nFileSizeLow);
+            }
+            file.Size(FormatMemorySize(file.SizeULong()));
+
+            file.ModifyTimeULong(((ULONG64)findFileData.ftLastAccessTime.dwHighDateTime << 32) | findFileData.ftLastAccessTime.dwLowDateTime);
+            SYSTEMTIME st;
+            if (FileTimeToSystemTime(&findFileData.ftLastAccessTime, &st))
+            {
+                std::wstringstream ss;
+                ss << std::setw(4) << std::setfill(L'0') << st.wYear << L"/"
+                    << std::setw(2) << std::setfill(L'0') << st.wMonth << L"/"
+                    << std::setw(2) << std::setfill(L'0') << st.wDay << L" "
+                    << std::setw(2) << std::setfill(L'0') << st.wHour << L":"
+                    << std::setw(2) << std::setfill(L'0') << st.wMinute << L":"
+                    << std::setw(2) << std::setfill(L'0') << st.wSecond;
+                file.ModifyTime(ss.str());
+            }
+            else
+            {
+                file.ModifyTime(L"(未知)");
+            }
+
+            FindClose(hFind);
+        }
+        else {
+            file.Size(L"-1 (未知)");
+            file.ModifyTime(L"(未知)");
+        }
+
+        if (file.Directory()) file.Size(L"");
+
+        co_return;
     }
 
     winrt::Windows::Foundation::IAsyncAction FilePage::GetFileIconAsync(const winrt::StarlightGUI::FileInfo& file)
@@ -224,14 +357,7 @@ namespace winrt::StarlightGUI::implementation
     void FilePage::SearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e) {
         if (!loaded) return;
 
-        reloadTimer.Stop();
-        reloadTimer.Interval(std::chrono::milliseconds(200));
-        reloadTimer.Tick([this](auto&&, auto&&) {
-            ResetState();
-            AddPreviousItem();
-            reloadTimer.Stop();
-            });
-        reloadTimer.Start();
+        WaitAndReloadAsync(200);
     }
 
     void FilePage::PathBox_KeyDown(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& e) {
@@ -266,6 +392,12 @@ namespace winrt::StarlightGUI::implementation
     {
         Button clickedButton = sender.as<Button>();
         winrt::hstring columnName = clickedButton.Tag().as<winrt::hstring>();
+
+        if (columnName == L"Previous") {
+            currentDirectory = GetParentDirectory(currentDirectory.c_str());
+            LoadFileList();
+            return;
+        }
 
         if (columnName == L"Name")
         {
@@ -340,6 +472,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     void FilePage::AddPreviousItem() {
+        if (m_fileList.Size() > 0 && m_fileList.GetAt(0).Flag() == 999) return;
         auto previousPage = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
         previousPage.Name(L"上个文件夹");
         previousPage.Flag(999);
@@ -352,5 +485,58 @@ namespace winrt::StarlightGUI::implementation
         m_loadedCount = 0;
         m_isLoadingMore = false;
         m_hasMoreFiles = true;
+    }
+
+    winrt::Windows::Foundation::IAsyncAction FilePage::WaitAndReloadAsync(int interval) {
+        auto lifetime = get_strong();
+
+        reloadTimer.Stop();
+        reloadTimer.Interval(std::chrono::milliseconds(interval));
+        reloadTimer.Tick([this](auto&&, auto&&) {
+            LoadFileList();
+            reloadTimer.Stop();
+            });
+        reloadTimer.Start();
+
+        co_return;
+    }
+
+    template <typename T>
+    T FilePage::FindParent(DependencyObject const& child)
+    {
+        DependencyObject parent = VisualTreeHelper::GetParent(child);
+        while (parent && !parent.try_as<T>())
+        {
+            parent = VisualTreeHelper::GetParent(parent);
+        }
+        return parent.try_as<T>();
+    }
+
+    void FilePage::QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files) {
+        std::wstring searchPath = path + L"\\*";
+
+        WIN32_FIND_DATA findFileData;
+        HANDLE hFind = FindFirstFile(searchPath.c_str(), &findFileData);
+
+        if (hFind == INVALID_HANDLE_VALUE) {
+            return;
+        }
+
+        do {
+            if (findFileData.cFileName[0] == L'.') {
+                continue;
+            }
+
+            auto fileInfo = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
+            fileInfo.Name(findFileData.cFileName);
+            fileInfo.Directory((findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
+            fileInfo.Flag((findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 ? MFT_RECORD_FLAG_FILE : MFT_RECORD_FLAG_DIRECTORY);
+            fileInfo.Path(path + L"\\" + findFileData.cFileName);
+
+            files.push_back(fileInfo);
+
+        } while (FindNextFile(hFind, &findFileData) != 0);
+
+        FindClose(hFind);
     }
 }

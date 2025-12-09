@@ -23,6 +23,7 @@ namespace winrt::StarlightGUI::implementation
         bool ApplyFilter(const winrt::StarlightGUI::KernelModuleInfo& kernelModule, hstring& query);
 
         winrt::Windows::Foundation::IAsyncAction LoadKernelModuleList();
+        winrt::Windows::Foundation::IAsyncAction WaitAndReloadAsync(int interval);
 
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::KernelModuleInfo> m_kernelModuleList{
             winrt::multi_threaded_observable_vector<winrt::StarlightGUI::KernelModuleInfo>()

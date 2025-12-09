@@ -22,7 +22,9 @@ namespace winrt::StarlightGUI::implementation
 
         winrt::Windows::Foundation::IAsyncAction LoadFileList();
         winrt::Windows::Foundation::IAsyncAction WaitAndReloadAsync(int interval);
+        winrt::Windows::Foundation::IAsyncAction GetFileInfoAsync(const winrt::StarlightGUI::FileInfo& file);
         winrt::Windows::Foundation::IAsyncAction GetFileIconAsync(const winrt::StarlightGUI::FileInfo& file);
+        void QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files);
 
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::FileInfo> m_fileList{
             winrt::multi_threaded_observable_vector<winrt::StarlightGUI::FileInfo>()
@@ -47,6 +49,9 @@ namespace winrt::StarlightGUI::implementation
         inline static bool m_isNameAscending = true;
         inline static bool currentSortingOption;
         inline static std::string currentSortingType;
+
+        template <typename T>
+        T FindParent(winrt::Microsoft::UI::Xaml::DependencyObject const& child);
     };
 
     extern winrt::hstring currentDirectory;

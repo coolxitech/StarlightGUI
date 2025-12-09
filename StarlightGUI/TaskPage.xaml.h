@@ -31,8 +31,6 @@ namespace winrt::StarlightGUI::implementation
         winrt::Windows::Foundation::IAsyncAction GetProcessInfoAsync(const PROCESSENTRY32W& pe32, std::vector<winrt::StarlightGUI::ProcessInfo>& processes);
         winrt::Windows::Foundation::IAsyncAction GetProcessIconAsync(const winrt::StarlightGUI::ProcessInfo& process);
 
-        winrt::hstring FormatMemorySize(uint64_t bytes);
-
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::StarlightGUI::ProcessInfo> m_processList{
             winrt::multi_threaded_observable_vector<winrt::StarlightGUI::ProcessInfo>()
         };

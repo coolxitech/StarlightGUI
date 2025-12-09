@@ -166,9 +166,6 @@
     <ClInclude Include="Utils\KernelModuleInfo.h">
       <Filter>Utils\Types</Filter>
     </ClInclude>
-    <ClInclude Include="WinUI3Package\Taskbar.hpp">
-      <Filter>Utils\WinUI3Package</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\FileInfo.h">
       <Filter>Utils\Types</Filter>
     </ClInclude>
@@ -382,9 +379,6 @@
     </Filter>
     <Filter Include="Utils\Elements">
       <UniqueIdentifier>{c581fe4b-97e8-4bc6-ba36-991d8c2d2052}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Utils\WinUI3Package">
-      <UniqueIdentifier>{b23f1912-fa96-4585-86b3-791a5c9fdd13}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

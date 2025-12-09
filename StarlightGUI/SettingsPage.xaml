@@ -9,6 +9,24 @@
 
     <ScrollViewer Padding="20">
         <StackPanel>
+            <TextBlock Text="功能" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
+            <essential:SettingsCard Header="遍历文件模式"
+                                    Description="在文件管理器里进行遍历文件使用的API"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xe736;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <ComboBox x:Name="EnumFileModeComboBox" 
+                              SelectionChanged="EnumFileModeComboBox_SelectionChanged" 
+                              essential:ComboBoxHelper.AcrylicWorkaround="True">
+                    <ComboBoxItem Content="ENUM_FILE_NTAPI" />
+                    <ComboBoxItem Content="ENUM_FILE_IRP" />
+                    <ComboBoxItem Content="ENUM_FILE_NTFSPARSER" />
+                </ComboBox>
+            </essential:SettingsCard>
+
             <TextBlock Text="外观" FontWeight="Bold" FontSize="14" Padding="10" HorizontalAlignment="Left"/>
             
             <!-- 背景 -->

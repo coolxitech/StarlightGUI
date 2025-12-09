@@ -42,6 +42,10 @@ namespace winrt::StarlightGUI::implementation {
 
 		// File
 		static BOOL QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files);
+		static BOOL DeleteFileAuto(std::wstring path);
+		static BOOL _DeleteFileAuto(std::wstring path);
+		static BOOL MurderFileAuto(std::wstring path);
+		static BOOL LockFile(std::wstring path);
 
 		// System
 		static BOOL EnableDSE();
@@ -50,6 +54,8 @@ namespace winrt::StarlightGUI::implementation {
 	private:
 		static BOOL GetDriverDevice();
 		static BOOL GetDriverDevice2();
+		static BOOL _DeleteFile(std::wstring path);
+		static BOOL MurderFile(std::wstring path);
 	};
 
 	class KernelBase {
