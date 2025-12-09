@@ -28,7 +28,24 @@ namespace winrt::StarlightGUI::implementation {
         return result;
     }
 
-    std::string WideStringToString(const winrt::hstring& hstr)
+    std::wstring FixBackSplash(const hstring& hstr) {
+        std::wstring str = hstr.c_str();
+        size_t pos = 0;
+        while ((pos = str.find(L"\\\\")) != std::wstring::npos) {
+            str.replace(pos, 2, L"\\");
+        }
+        return str;
+    }
+
+    std::wstring GetParentDirectory(const hstring& path)
+    {
+        fs::path p(path.c_str());
+        fs::path parent = p.parent_path();
+
+        return parent.wstring();
+    }
+
+    std::string WideStringToString(const hstring& hstr)
     {
         const wchar_t* wstr = hstr.c_str();
         int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);

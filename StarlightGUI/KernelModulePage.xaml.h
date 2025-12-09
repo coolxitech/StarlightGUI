@@ -19,8 +19,8 @@ namespace winrt::StarlightGUI::implementation
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);
 
-        winrt::fire_and_forget KernelModuleSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::Windows::Foundation::IAsyncOperation<bool> ApplyFilter(const winrt::StarlightGUI::KernelModuleInfo& kernelModule, hstring& query);
+        void KernelModuleSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        bool ApplyFilter(const winrt::StarlightGUI::KernelModuleInfo& kernelModule, hstring& query);
 
         winrt::Windows::Foundation::IAsyncAction LoadKernelModuleList();
 
@@ -29,6 +29,8 @@ namespace winrt::StarlightGUI::implementation
         };
 
         bool m_isLoadingKernelModules = false;
+
+        winrt::Microsoft::UI::Xaml::DispatcherTimer reloadTimer;
 
         inline static bool m_isLoading = false;
         inline static bool m_isNameAscending = true;

@@ -46,6 +46,7 @@
 #include <Utils/MokuaiInfo.h>
 #include <Utils/KCTInfo.h>
 #include <Utils/KernelModuleInfo.h>
+#include <Utils/FileInfo.h>
 
 #include <Utils/TaskUtils.h>
 #include <Utils/Utils.h>

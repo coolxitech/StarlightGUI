@@ -5,7 +5,11 @@
 namespace winrt::StarlightGUI::implementation {
     std::wstring GenerateRandomString(size_t length);
 
-    std::string WideStringToString(const winrt::hstring& hstr);
+    std::wstring FixBackSplash(const hstring& hstr);
+
+    std::wstring GetParentDirectory(const hstring& path);
+
+    std::string WideStringToString(const hstring& hstr);
 
     std::wstring ULongToHexString(ULONG64 value);
 

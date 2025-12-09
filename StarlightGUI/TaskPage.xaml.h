@@ -11,8 +11,6 @@ namespace winrt::StarlightGUI::implementation
     {
         TaskPage();
 
-        ~TaskPage();
-
         void StartLoop();
 
         winrt::fire_and_forget RefreshProcessListButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
@@ -25,8 +23,8 @@ namespace winrt::StarlightGUI::implementation
         void ColumnHeader_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
         winrt::fire_and_forget ApplySort(bool& isAscending, const std::string& column);
-        winrt::fire_and_forget ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        winrt::Windows::Foundation::IAsyncOperation<bool> ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query);
+        void ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        bool ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query);
 
         winrt::Windows::Foundation::IAsyncAction LoadProcessList(bool force = false);
         winrt::Windows::Foundation::IAsyncAction WaitAndReloadAsync(int interval);

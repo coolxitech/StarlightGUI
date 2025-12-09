@@ -35,7 +35,7 @@
                 <TextBlock Grid.Column="1" 
                        x:Name="KernelModuleCountText" 
                        Text="正在加载..." 
-                       Margin="20,0,0,0" 
+                       Margin="10,0,0,0" 
                        VerticalAlignment="Center"
                        Foreground="{ThemeResource SystemControlForegroundBaseMediumBrush}"/>
 
@@ -65,7 +65,7 @@
                     </AppBarButton>
                 </CommandBar>
 
-                <RichEditBox Grid.Column="4"
+                <TextBox Grid.Column="4"
                          x:Name="KernelModuleSearchBox" 
                          HorizontalAlignment="Right" 
                          Width="300" 
@@ -91,7 +91,7 @@
                 </Grid>
             </Border>
 
-            <ScrollViewer Grid.Row="2"
+            <Border Grid.Row="2"
                           CornerRadius="0,0,5,5"
                           BorderThickness="1,0,1,1"
                           Background="{ThemeResource ControlFillColorDefaultBrush}" 
@@ -193,7 +193,7 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </Grid>
-            </ScrollViewer>
+            </Border>
         </Grid>
         <StackPanel HorizontalAlignment="Right"
                     x:Name="InfoBarPanel" 

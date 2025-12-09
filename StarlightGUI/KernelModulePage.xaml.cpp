@@ -57,13 +57,15 @@ namespace winrt::StarlightGUI::implementation
             RefreshKernelModuleListButton().IsEnabled(false);
             LoadDriverButton().IsEnabled(false);
             UnloadModuleButton().IsEnabled(false);
+            KernelModuleCountText().Text(L"请以管理员身份运行！");
             CreateInfoBarAndDisplay(L"警告", L"请以管理员身份运行！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
         }
-
-        this->Loaded([this](auto&&, auto&&) {
-            LoadKernelModuleList();
-            loaded = true;
-            });
+        else {
+            this->Loaded([this](auto&&, auto&&) {
+                LoadKernelModuleList();
+                loaded = true;
+                });
+        }
     }
 
     void KernelModulePage::KernelModuleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -174,7 +176,6 @@ namespace winrt::StarlightGUI::implementation
     winrt::Windows::Foundation::IAsyncAction KernelModulePage::LoadKernelModuleList()
     {
         if (!KernelInstance::IsRunningAsAdmin()) {
-            KernelModuleCountText().Text(L"请以管理员身份运行！");
             co_return;
         }
         if (m_isLoadingKernelModules) {
@@ -189,8 +190,7 @@ namespace winrt::StarlightGUI::implementation
 
         auto lifetime = get_strong();
 
-        winrt::hstring query;
-        KernelModuleSearchBox().Document().GetText(TextGetOptions::NoHidden, query);
+        winrt::hstring query = KernelModuleSearchBox().Text();
 
         co_await winrt::resume_background();
 
@@ -219,7 +219,7 @@ namespace winrt::StarlightGUI::implementation
 
         m_kernelModuleList.Clear();
         for (const auto& kernelModule : kernelModules) {
-            bool shouldRemove = query.empty() ? false : co_await ApplyFilter(kernelModule, query);
+            bool shouldRemove = query.empty() ? false : ApplyFilter(kernelModule, query);
             if (shouldRemove) continue;
 
             if (kernelModule.Name().empty()) kernelModule.Name(L"(未知)");
@@ -345,14 +345,20 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget KernelModulePage::KernelModuleSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    void KernelModulePage::KernelModuleSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) co_return;
+        if (!loaded) return;
 
-        co_await LoadKernelModuleList();
+        reloadTimer.Stop();
+        reloadTimer.Interval(std::chrono::milliseconds(200));
+        reloadTimer.Tick([this](auto&&, auto&&) {
+            LoadKernelModuleList();
+            reloadTimer.Stop();
+            });
+        reloadTimer.Start();
     }
 
-    winrt::Windows::Foundation::IAsyncOperation<bool> KernelModulePage::ApplyFilter(const winrt::StarlightGUI::KernelModuleInfo& kernelModule, hstring& query) {
+    bool KernelModulePage::ApplyFilter(const winrt::StarlightGUI::KernelModuleInfo& kernelModule, hstring& query) {
         std::wstring name = kernelModule.Name().c_str();
         std::wstring queryWStr = query.c_str();
 
@@ -362,24 +368,14 @@ namespace winrt::StarlightGUI::implementation
 
         bool result = name.find(queryWStr) == std::wstring::npos;
 
-        co_return result;
+        return result;
     }
 
 
     winrt::fire_and_forget KernelModulePage::RefreshKernelModuleListButton_Click(IInspectable const&, RoutedEventArgs const&)
     {
-        // 手动刷新时清空过滤列表，确保获取最新的进程列表
-        auto current = std::chrono::steady_clock::now();
-
-        if (std::chrono::duration_cast<std::chrono::seconds>(current - lastRefresh).count() < 1) {
-            CreateInfoBarAndDisplay(L"警告", L"刷新速度过快，请稍后再试！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
-            co_return;
-        }
-
         RefreshKernelModuleListButton().IsEnabled(false);
-
         co_await LoadKernelModuleList();
-
         RefreshKernelModuleListButton().IsEnabled(true);
         co_return;
     }

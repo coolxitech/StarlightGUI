@@ -69,6 +69,12 @@ namespace winrt::StarlightGUI::implementation
             StartLoop();
             loaded = true;
 			});
+
+        this->Unloaded([this](auto&&, auto&&) {
+            defaultRefreshTimer.Stop();
+            reloadTimer.Stop();
+            ReleaseDC(NULL, hdc);
+            });
     }
 
     void TaskPage::StartLoop() {
@@ -460,8 +466,7 @@ namespace winrt::StarlightGUI::implementation
         int selectedItemId = -1;
         if (ProcessListView().SelectedItem()) selectedItemId = ProcessListView().SelectedItem().as<winrt::StarlightGUI::ProcessInfo>().Id();
 
-        winrt::hstring query;
-        ProcessSearchBox().Document().GetText(TextGetOptions::NoHidden, query);
+        winrt::hstring query = ProcessSearchBox().Text();
 
         co_await winrt::resume_background();
 
@@ -518,7 +523,7 @@ namespace winrt::StarlightGUI::implementation
         m_processList.Clear();
         winrt::StarlightGUI::ProcessInfo& selectedTarget = winrt::make<winrt::StarlightGUI::implementation::ProcessInfo>();
         for (const auto& process : processes) {
-            bool shouldRemove = query.empty() ? false : co_await ApplyFilter(process, query);
+            bool shouldRemove = query.empty() ? false : ApplyFilter(process, query);
             if (shouldRemove) continue;
 
 			// 从缓存加载图标，没有则获取
@@ -816,14 +821,13 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    winrt::fire_and_forget TaskPage::ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    void TaskPage::ProcessSearchBox_TextChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
-        if (!loaded) co_return;
+        if (!loaded) return;
 		// 每次搜索都清空之前缓存的过滤结果
         filteredPids.clear();
 
-        winrt::hstring query;
-        ProcessSearchBox().Document().GetText(TextGetOptions::NoHidden, query);
+        winrt::hstring query = ProcessSearchBox().Text();
 
         /*
         * 我们的思路是这样的：
@@ -836,16 +840,15 @@ namespace winrt::StarlightGUI::implementation
         *  - 但这种情况发生的概率极低，而且影响也不大，所以可以接受，我们还有个刷新按钮可以手动刷新进程列表
         */
         if (!query.empty()) {
-            std::lock_guard<std::mutex> lock(safelock);
             for (const auto& process : fullRecordedProcesses) {
                 ApplyFilter(process, query);
             }
         }
 
-        co_await WaitAndReloadAsync(200);
+        WaitAndReloadAsync(200);
     }
 
-    winrt::Windows::Foundation::IAsyncOperation<bool> TaskPage::ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query) {
+    bool TaskPage::ApplyFilter(const winrt::StarlightGUI::ProcessInfo& process, hstring& query) {
         std::wstring name = process.Name().c_str();
         std::wstring queryWStr = query.c_str();
 
@@ -860,7 +863,7 @@ namespace winrt::StarlightGUI::implementation
 			filteredPids.insert(process.Id());
         }
 
-        co_return result;
+        return result;
     }
 
 
@@ -1024,12 +1027,6 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
-    TaskPage::~TaskPage() {
-        defaultRefreshTimer.Stop();
-        reloadTimer.Stop();
-        ReleaseDC(NULL, hdc);
-    }
-
     template <typename T>
     T TaskPage::FindParent(DependencyObject const& child)
     {
@@ -1042,7 +1039,7 @@ namespace winrt::StarlightGUI::implementation
     }
 
     winrt::Windows::Foundation::IAsyncAction TaskPage::WaitAndReloadAsync(int interval) {
-        auto strong = get_strong();
+        auto lifetime = get_strong();
 
         reloadTimer.Stop();
         reloadTimer.Interval(std::chrono::milliseconds(interval));

@@ -42,13 +42,13 @@
     <Page Include="LoadDriverDialog.xaml">
       <Filter>Utils\Elements</Filter>
     </Page>
+    <Page Include="FilePage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
     <Midl Include="HomePage.idl">
-      <Filter>Pages</Filter>
-    </Midl>
-    <Midl Include="ProcessPage.idl">
       <Filter>Pages</Filter>
     </Midl>
     <Midl Include="SettingsPage.idl">
@@ -73,6 +73,9 @@
       <Filter>Utils\Types</Filter>
     </Midl>
     <Midl Include="Utils\KernelModuleInfo.idl">
+      <Filter>Utils\Types</Filter>
+    </Midl>
+    <Midl Include="Utils\FileInfo.idl">
       <Filter>Utils\Types</Filter>
     </Midl>
   </ItemGroup>
@@ -110,6 +113,9 @@
       <Filter>Utils\Types</Filter>
     </ClCompile>
     <ClCompile Include="Utils\KernelModuleInfo.cpp">
+      <Filter>Utils\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\FileInfo.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
   </ItemGroup>
@@ -162,6 +168,9 @@
     </ClInclude>
     <ClInclude Include="WinUI3Package\Taskbar.hpp">
       <Filter>Utils\WinUI3Package</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\FileInfo.h">
+      <Filter>Utils\Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

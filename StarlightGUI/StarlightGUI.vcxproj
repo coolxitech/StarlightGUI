@@ -152,6 +152,10 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FilePage.xaml.h">
+      <DependentUpon>FilePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="HelpPage.xaml.h">
       <DependentUpon>HelpPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -216,6 +220,7 @@
     <ClInclude Include="Utils\Config.h" />
     <ClInclude Include="Utils\CppUtils.h" />
     <ClInclude Include="Utils\Elevator.h" />
+    <ClInclude Include="Utils\FileInfo.h" />
     <ClInclude Include="Utils\HandleInfo.h" />
     <ClInclude Include="Utils\KCTInfo.h" />
     <ClInclude Include="Utils\KernelBase.h" />
@@ -230,6 +235,9 @@
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
+    <Page Include="FilePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="HelpPage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -272,6 +280,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FilePage.xaml.cpp">
+      <DependentUpon>FilePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="HelpPage.xaml.cpp">
       <DependentUpon>HelpPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -337,6 +349,7 @@
     </ClCompile>
     <ClCompile Include="Utils\CppUtils.cpp" />
     <ClCompile Include="Utils\DriverUtils.cpp" />
+    <ClCompile Include="Utils\FileInfo.cpp" />
     <ClCompile Include="Utils\HandleInfo.cpp" />
     <ClCompile Include="Utils\KCTInfo.cpp" />
     <ClCompile Include="Utils\KernelBase.cpp" />
@@ -348,6 +361,10 @@
     <ClCompile Include="Utils\ThreadInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Midl Include="FilePage.idl">
+      <DependentUpon>FilePage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="HelpPage.idl">
       <DependentUpon>HelpPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -404,6 +421,7 @@
       <DependentUpon>TaskPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
+    <Midl Include="Utils\FileInfo.idl" />
     <Midl Include="Utils\HandleInfo.idl" />
     <Midl Include="Utils\KCTInfo.idl" />
     <Midl Include="Utils\KernelModuleInfo.idl" />

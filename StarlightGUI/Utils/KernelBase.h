@@ -40,6 +40,9 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL EnumProcessKernelCallbackTable(ULONG64 eprocess, std::vector<winrt::StarlightGUI::KCTInfo>& threads);
 		static BOOL EnumDrivers(std::vector<winrt::StarlightGUI::KernelModuleInfo>& kernelModules);
 
+		// File
+		static BOOL QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files);
+
 		// System
 		static BOOL EnableDSE();
 		static BOOL DisableDSE();

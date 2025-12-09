@@ -465,6 +465,133 @@ namespace winrt::StarlightGUI::implementation {
 		return status && bRet;
 	}
 
+	BOOL KernelInstance::QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files)
+	{
+		BOOL bRet = FALSE;
+		ULONG nRet = 0;
+		std::string enumFileMode = ReadConfig("enum_file_mode", "ENUM_FILE_NTAPI");
+
+		struct INPUT
+		{
+			ULONG_PTR nSize;
+			PDATA_INFO pBuffer;
+			UNICODE_STRING path[MAX_PATH];
+		};
+
+		INPUT inputs = { 0 };
+
+		if (enumFileMode == "ENUM_FILE_IRP")
+		{
+			RtlInitUnicodeString(inputs.path, path.c_str());
+		}
+		else
+		{
+			WCHAR targetPath[MAX_PATH];
+			wcscpy_s(targetPath, L"\\??\\");
+			wcscat_s(targetPath, path.c_str());
+			RtlInitUnicodeString(inputs.path, targetPath);
+		}
+
+		inputs.nSize = sizeof(DATA_INFO) * 10000;
+		inputs.pBuffer = (DATA_INFO*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
+		if (enumFileMode == "ENUM_FILE_NTFSPARSER")
+		{
+			bRet = DeviceIoControl(driverDevice, IOCTL_NTFS_PARSER_ENUM_FILE2, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, 0);
+			if (bRet && nRet > 0 && nRet < 10000)
+			{
+				std::vector<winrt::StarlightGUI::FileInfo> result;
+				for (ULONG i = 0; i < nRet; i++)
+				{
+					DATA_INFO data = inputs.pBuffer[i];
+					auto fileInfo = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
+					fileInfo.Name(data.wcstr);
+					fileInfo.Path(path + L"\\" + data.wcstr);
+					fileInfo.Flag(data.ulongdata1);
+					fileInfo.Directory(data.ulongdata1 != MFT_RECORD_FLAG_FILE);
+					fileInfo.Size(data.ulong64data2);
+					fileInfo.MFTID(data.ulong64data1);
+					result.push_back(fileInfo);
+				}
+				// Remove duplicated MFT indexes
+				std::unordered_map<ULONG64, size_t> keep;
+				for (size_t i = 0; i < result.size(); ++i) {
+					ULONG64 mft = result[i].MFTID();
+					auto it = keep.find(mft);
+
+					if (it == keep.end()) keep[mft] = i;
+					else {
+						std::wstring_view curr = result[i].Name(), kept = result[it->second].Name();
+						bool cHas = curr.find(L'~') != std::wstring_view::npos;
+						bool kHas = kept.find(L'~') != std::wstring_view::npos;
+
+						if ((!cHas && kHas) || (cHas == kHas && curr.length() < kept.length())) {
+							it->second = i;
+						}
+					}
+				}
+
+				result.reserve(keep.size());
+				for (auto& [mft, idx] : keep) files.push_back(std::move(result[idx]));
+			}
+		}
+		else if (enumFileMode == "ENUM_FILE_NTAPI")
+		{
+			bRet = DeviceIoControl(driverDevice, IOCTL_QUERY_FILE2, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, 0);
+			if (bRet && nRet > 0 && nRet < 10000)
+			{
+				for (ULONG i = 0; i < nRet; i++)
+				{
+					DATA_INFO data = inputs.pBuffer[i];
+					auto fileInfo = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
+					fileInfo.Name(data.wcstr);
+					fileInfo.Path(path + L"\\" + data.wcstr);
+					fileInfo.Flag(data.ulongdata1);
+					fileInfo.Directory(data.ulongdata1 != MFT_RECORD_FLAG_FILE);
+					files.push_back(fileInfo);
+					if (data.ulongdata4 == FALSE)
+					{
+						fileInfo.Flag(MFT_RECORD_FLAG_FILE);
+						fileInfo.Directory(false);
+					}
+					else
+					{
+						fileInfo.Flag(MFT_RECORD_FLAG_DIRECTORY);
+						fileInfo.Directory(true);
+					}
+				}
+			}
+		}
+		else if (enumFileMode == "ENUM_FILE_IRP")
+		{
+			bRet = DeviceIoControl(driverDevice, IOCTL_QUERY_FILE_IRP, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, 0);
+			if (bRet && nRet > 0 && nRet < 10000)
+			{
+				for (ULONG i = 0; i < nRet; i++)
+				{
+					DATA_INFO data = inputs.pBuffer[i];
+					auto fileInfo = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
+					fileInfo.Name(data.wcstr);
+					fileInfo.Path(path + L"\\" + data.wcstr);
+					fileInfo.Flag(data.ulongdata1);
+					fileInfo.Directory(data.ulongdata1 != MFT_RECORD_FLAG_FILE);
+					files.push_back(fileInfo);
+					if (data.ulongdata4 == FALSE)
+					{
+						fileInfo.Flag(MFT_RECORD_FLAG_FILE);
+						fileInfo.Directory(false);
+					}
+					else
+					{
+						fileInfo.Flag(MFT_RECORD_FLAG_DIRECTORY);
+						fileInfo.Directory(true);
+					}
+				}
+			}
+		}
+		bRet = HeapFree(GetProcessHeap(), 0, inputs.pBuffer);
+		return bRet;
+	}
+
 	BOOL KernelInstance::DisableDSE() {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		return DeviceIoControl(driverDevice, IOCTL_DISABLE_DSE, NULL, 0, NULL, 0, NULL, NULL);
