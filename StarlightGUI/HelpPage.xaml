@@ -116,8 +116,8 @@
                                 </Ellipse.Fill>
                             </Ellipse>
                             <StackPanel Margin="16">
-                                <TextBlock Text="MuLin4" FontSize="20" FontWeight="SemiBold"/>
-                                <TextBlock Text="一个QA和半个PD？，为本项目提了一些小Bug和一些小需求" FontSize="14" Foreground="LightGray"/>
+                                <TextBlock Text="MuLin" FontSize="20" FontWeight="SemiBold"/>
+                                <TextBlock Text="一个QA和半个PD？为本项目提了一些小Bug和一些小需求。" FontSize="14" Foreground="LightGray"/>
                             </StackPanel>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
