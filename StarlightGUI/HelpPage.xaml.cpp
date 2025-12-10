@@ -60,7 +60,7 @@ namespace winrt::StarlightGUI::implementation
         LaunchURI(L"https://aka.ms/windev");
     }
 
-    IAsyncAction HelpPage::LaunchURI(hstring uri) {
+    winrt::fire_and_forget HelpPage::LaunchURI(hstring uri) {
         Uri target(uri);
         auto result = co_await Launcher::LaunchUriAsync(target);
 
@@ -68,7 +68,7 @@ namespace winrt::StarlightGUI::implementation
             CreateInfoBarAndDisplay(L"成功", L"已在浏览器打开网页！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
         }
         else {
-            CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            CreateInfoBarAndDisplay(L"失败", L"无法打开网页！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
         }
     }
 }
