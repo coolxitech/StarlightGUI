@@ -18,7 +18,6 @@ namespace winrt::StarlightGUI::implementation
     static std::unordered_map<hstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
     static HDC hdc{ nullptr };
     static bool loaded;
-    static hstring safeAcceptedPath = L"";
 
     FilePage::FilePage() {
         InitializeComponent();
@@ -57,16 +56,22 @@ namespace winrt::StarlightGUI::implementation
             auto container = FindParent<ListViewItem>(fe);
             if (container)
             {
-                listView.SelectedItem(container.Content());
+                if (listView.SelectedItems().Size() < 2) listView.SelectedItem(container.Content());
             }
         }
 
-        if (!listView.SelectedItem()) return;
+        if (!listView.SelectedItems() || listView.SelectedItems().Size() == 0) return;
 
-        auto item = listView.SelectedItem().as<winrt::StarlightGUI::FileInfo>();
+        auto list = listView.SelectedItems();
+        
+        std::vector<winrt::StarlightGUI::FileInfo> selectedFiles;
 
-        // 跳过上个文件夹选项
-        if (item.Flag() == 999) return;
+        for (const auto& file : list) {
+            auto item = file.as<winrt::StarlightGUI::FileInfo>();
+            // 跳过上个文件夹选项
+            if (item.Flag() == 999) continue;
+            selectedFiles.push_back(item);
+        }
 
         MenuFlyout menuFlyout;
 
@@ -77,12 +82,14 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item1_1;
         item1_1.Icon(CreateFontIcon(L"\ue8e5"));
         item1_1.Text(L"打开");
-        item1_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
-            if (item.Directory()) {
-                currentDirectory = currentDirectory + L"\\" + item.Name();
-                LoadFileList();
+        item1_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
+            for (const auto& item : selectedFiles) {
+                if (item.Directory()) {
+                    currentDirectory = currentDirectory + L"\\" + item.Name();
+                    LoadFileList();
+                }
+                else ShellExecuteW(nullptr, L"open", item.Path().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
             }
-            else ShellExecuteW(nullptr, L"open", item.Path().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
             });
 
         MenuFlyoutSeparator separator1;
@@ -91,40 +98,40 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_1;
         item2_1.Icon(CreateFontIcon(L"\ue74d"));
         item2_1.Text(L"删除");
-        item2_1.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
-            if (KernelInstance::DeleteFileAuto(item.Path().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                WaitAndReloadAsync(1000);
+        item2_1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
+            for (const auto& item : selectedFiles) {
+                if (KernelInstance::DeleteFileAuto(item.Path().c_str())) {
+                    CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    WaitAndReloadAsync(1000);
+                }
+                else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             });
 
         MenuFlyoutItem item2_2;
         item2_2.Icon(CreateFontIcon(L"\ue733"));
         item2_2.Text(L"删除 (内核)");
-        item2_2.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
-            if (KernelInstance::_DeleteFileAuto(item.Path().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                WaitAndReloadAsync(1000);
+        item2_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
+            for (const auto& item : selectedFiles) {
+                if (KernelInstance::_DeleteFileAuto(item.Path().c_str())) {
+                    CreateInfoBarAndDisplay(L"成功", L"成功删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    WaitAndReloadAsync(1000);
+                }
+                else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_2.IsEnabled(false);
 
         MenuFlyoutItem item2_3;
         item2_3.Icon(CreateFontIcon(L"\uf5ab"));
         item2_3.Text(L"强制删除");
-        item2_3.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
-            if (safeAcceptedPath == item.Path() || !ReadConfig("dangerous_confirm", true)) {
+        item2_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
+            for (const auto& item : selectedFiles) {
                 if (KernelInstance::MurderFileAuto(item.Path().c_str())) {
                     CreateInfoBarAndDisplay(L"成功", L"成功强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                     WaitAndReloadAsync(1000);
                 }
                 else CreateInfoBarAndDisplay(L"失败", L"无法强制删除文件/文件夹: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
-            }
-            else {
-                safeAcceptedPath = item.Path();
-                CreateInfoBarAndDisplay(L"警告", L"该操作可能导致系统崩溃或文件数据损坏，如果确认继续请再次点击！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_3.IsEnabled(false);
@@ -132,14 +139,22 @@ namespace winrt::StarlightGUI::implementation
         MenuFlyoutItem item2_4;
         item2_4.Icon(CreateFontIcon(L"\ue72e"));
         item2_4.Text(L"锁定");
-        item2_4.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) {
-            if (KernelInstance::LockFile(item.Path().c_str())) {
-                CreateInfoBarAndDisplay(L"成功", L"成功锁定文件: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-                WaitAndReloadAsync(1000);
+        item2_4.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
+            for (const auto& item : selectedFiles) {
+                if (KernelInstance::LockFile(item.Path().c_str())) {
+                    CreateInfoBarAndDisplay(L"成功", L"成功锁定文件: " + item.Name() + L" (" + item.Path() + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    WaitAndReloadAsync(1000);
+                }
+                else CreateInfoBarAndDisplay(L"失败", L"无法锁定文件: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             }
-            else CreateInfoBarAndDisplay(L"失败", L"无法锁定文件: " + item.Name() + L" (" + item.Path() + L"), 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
             });
-        if (!KernelInstance::IsRunningAsAdmin() || item.Directory()) item2_4.IsEnabled(false);
+        if (!KernelInstance::IsRunningAsAdmin()) item2_4.IsEnabled(false);
+        for (const auto& item : selectedFiles) {
+            if (item.Directory()) {
+                item2_4.IsEnabled(false);
+                break;
+            }
+        }
 
         menuFlyout.Items().Append(item1_1);
         menuFlyout.Items().Append(separator1);

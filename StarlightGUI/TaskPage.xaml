@@ -102,8 +102,8 @@
                     <ProgressRing x:Name="LoadingRing" IsActive="False" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     
                     <ListView x:Name="ProcessListView"
-                          Background="Transparent"
-                          RightTapped="ProcessListView_RightTapped">
+                              Background="Transparent"
+                              RightTapped="ProcessListView_RightTapped">
 
                         <!-- 进程数据 -->
                         <ListView.ItemTemplate>

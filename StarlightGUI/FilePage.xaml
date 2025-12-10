@@ -108,7 +108,9 @@
                               Background="Transparent"
                               RightTapped="FileListView_RightTapped"
                               IsDoubleTapEnabled="True"
-                              DoubleTapped="FileListView_DoubleTapped">
+                              DoubleTapped="FileListView_DoubleTapped"
+                              IsMultiSelectCheckBoxEnabled="True"
+                              SelectionMode="Extended">
 
                         <ListView.ItemTemplate>
                             <DataTemplate>
