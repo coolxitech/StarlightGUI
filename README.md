@@ -121,6 +121,7 @@ Starlight GUI 不是单个 `.exe` 应用，而是 `.msix` 应用，这和你在�
 ### 项目支持
 - **Kali_MC** - 驱动开发
 - **Wormwaker** - 技术思路启发和参考
+- **MuLin** - 程序测试
 
 ### 开发环境
 - **Visual Studio** - 强大的集成开发环境

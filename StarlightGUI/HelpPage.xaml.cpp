@@ -40,6 +40,11 @@ namespace winrt::StarlightGUI::implementation
         LaunchURI(L"https://github.com/PspExitThread");
     }
 
+    void HelpPage::GithubUser4Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        LaunchURI(L"https://github.com/MuLin4396");
+    }
+
     void HelpPage::BilibiliButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         LaunchURI(L"https://space.bilibili.com/670866766");
