@@ -224,6 +224,8 @@ namespace winrt::StarlightGUI::implementation
         currentDirectory = path;
         PathBox().Text(currentDirectory);
 
+        // 简单判断根目录
+        PreviousButton().IsEnabled(path.length() > 3);
         ResetState();
         m_allFiles.clear();
 
@@ -497,6 +499,28 @@ namespace winrt::StarlightGUI::implementation
         co_return;
     }
 
+    winrt::fire_and_forget FilePage::NextDriveButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        static std::vector<std::wstring> drives;
+        static int currentIndex = 1;
+
+        if (drives.empty()) {
+            wchar_t driveBuffer[256];
+            GetLogicalDriveStrings(255, driveBuffer);
+
+            for (wchar_t* drive = driveBuffer; *drive; drive += wcslen(drive) + 1) {
+                drives.push_back(drive);
+            }
+
+            if (drives.empty()) drives = { L"C:\\" };
+        }
+
+        currentDirectory = drives[currentIndex];
+        currentIndex = (currentIndex + 1) % drives.size();
+
+        co_await LoadFileList();
+    }
+
     bool FilePage::FindScrollViewer(DependencyObject parent) {
         if (!m_listScrollViewer) {
             if (auto sv = parent.try_as<winrt::Microsoft::UI::Xaml::Controls::ScrollViewer>()) {
@@ -515,6 +539,8 @@ namespace winrt::StarlightGUI::implementation
     }
 
     void FilePage::AddPreviousItem() {
+        // 简单判断根目录
+        if (currentDirectory.size() <= 3) return;
         if (m_fileList.Size() > 0 && m_fileList.GetAt(0).Flag() == 999) return;
         auto previousPage = winrt::make<winrt::StarlightGUI::implementation::FileInfo>();
         previousPage.Name(L"上个文件夹");
