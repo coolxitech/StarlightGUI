@@ -41,6 +41,16 @@ namespace winrt::StarlightGUI::implementation {
         return str;
     }
 
+    std::wstring RemoveFromString(const hstring& hstr, const hstring& removeHstr) {
+        std::wstring str = hstr.c_str();
+        std::wstring removeStr = removeHstr.c_str();
+        size_t pos = 0;
+        while ((pos = str.find(removeHstr)) != std::wstring::npos) {
+            str.replace(pos, removeHstr.size(), L"");
+        }
+        return str;
+    }
+
     std::wstring GetParentDirectory(const hstring& path)
     {
         fs::path p(path.c_str());

@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <shellapi.h>
+#include <CopyFileDialog.xaml.h>
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -60,7 +61,10 @@ namespace winrt::StarlightGUI::implementation
             }
         }
 
-        if (!listView.SelectedItems() || listView.SelectedItems().Size() == 0) return;
+        if (!listView.SelectedItems() || listView.SelectedItems().Size() == 0 || 
+            // 只选择"上个文件夹"时不显示，多选的话在下面跳过处理，认为是误选
+            (listView.SelectedItems().Size() == 1 && listView.SelectedItems().GetAt(0).as<winrt::StarlightGUI::FileInfo>().Flag() == 999)) 
+            return;
 
         auto list = listView.SelectedItems();
         
@@ -68,7 +72,7 @@ namespace winrt::StarlightGUI::implementation
 
         for (const auto& file : list) {
             auto item = file.as<winrt::StarlightGUI::FileInfo>();
-            // 跳过上个文件夹选项
+            // 跳过"上个文件夹"选项
             if (item.Flag() == 999) continue;
             selectedFiles.push_back(item);
         }
@@ -91,6 +95,15 @@ namespace winrt::StarlightGUI::implementation
                 else ShellExecuteW(nullptr, L"open", item.Path().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
             }
             });
+        // 当选中多个内容并且其中一个是文件夹时禁用打开按钮
+        if (selectedFiles.size() > 1) {
+            for (const auto& item : selectedFiles) {
+                if (item.Directory()) {
+                    item1_1.IsEnabled(false);
+                    break;
+                }
+            }
+        }
 
         MenuFlyoutSeparator separator1;
 
@@ -156,12 +169,21 @@ namespace winrt::StarlightGUI::implementation
             }
         }
 
+        MenuFlyoutItem item2_5;
+        item2_5.Icon(CreateFontIcon(L"\ue8c8"));
+        item2_5.Text(L"复制");
+        item2_5.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) {
+            CopyFiles();
+            });
+        if (!KernelInstance::IsRunningAsAdmin()) item2_5.IsEnabled(false);
+
         menuFlyout.Items().Append(item1_1);
         menuFlyout.Items().Append(separator1);
         menuFlyout.Items().Append(item2_1);
         menuFlyout.Items().Append(item2_2);
         menuFlyout.Items().Append(item2_3);
         menuFlyout.Items().Append(item2_4);
+        menuFlyout.Items().Append(item2_5);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
 	}
@@ -622,5 +644,33 @@ namespace winrt::StarlightGUI::implementation
         } while (FindNextFile(hFind, &findFileData) != 0);
 
         FindClose(hFind);
+    }
+
+    winrt::fire_and_forget FilePage::CopyFiles() {
+        auto dialog = winrt::make<winrt::StarlightGUI::implementation::CopyFileDialog>();
+        dialog.XamlRoot(this->XamlRoot());
+
+        auto result = co_await dialog.ShowAsync();
+
+        if (result == ContentDialogResult::Primary) {
+            std::wstring copyPath = dialog.CopyPath().c_str();
+
+            std::vector<winrt::StarlightGUI::FileInfo> selectedFiles;
+
+            for (const auto& file : FileListView().SelectedItems()) {
+                auto item = file.as<winrt::StarlightGUI::FileInfo>();
+                // 跳过上个文件夹选项
+                if (item.Flag() == 999) continue;
+                selectedFiles.push_back(item);
+            }
+
+            for (const auto& item : selectedFiles) {
+                if (KernelInstance::_CopyFile(std::wstring(item.Path().c_str()).substr(0, item.Path().size() - item.Name().size()), copyPath + L"\\" + item.Name().c_str(), item.Name().c_str())) {
+                    CreateInfoBarAndDisplay(L"成功", L"成功复制文件至: " + dialog.CopyPath(), InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    WaitAndReloadAsync(1000);
+                }
+                else CreateInfoBarAndDisplay(L"失败", L"无法复制文件, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            }
+        }
     }
 }

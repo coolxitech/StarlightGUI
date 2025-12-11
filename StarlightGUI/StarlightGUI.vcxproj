@@ -152,6 +152,10 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CopyFileDialog.xaml.h">
+      <DependentUpon>CopyFileDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="FilePage.xaml.h">
       <DependentUpon>FilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -179,6 +183,10 @@
     </ClInclude>
     <ClInclude Include="LoadDriverDialog.xaml.h">
       <DependentUpon>LoadDriverDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ModifyTokenDialog.xaml.h">
+      <DependentUpon>ModifyTokenDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="pch.h" />
@@ -238,6 +246,9 @@
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
+    <Page Include="CopyFileDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="FilePage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -260,6 +271,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainWindow.xaml" />
+    <Page Include="ModifyTokenDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Process_HandlePage.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -286,6 +300,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CopyFileDialog.xaml.cpp">
+      <DependentUpon>CopyFileDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="FilePage.xaml.cpp">
       <DependentUpon>FilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -312,6 +330,10 @@
     </ClCompile>
     <ClCompile Include="LoadDriverDialog.xaml.cpp">
       <DependentUpon>LoadDriverDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ModifyTokenDialog.xaml.cpp">
+      <DependentUpon>ModifyTokenDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -371,6 +393,10 @@
     <ClCompile Include="Utils\ThreadInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Midl Include="CopyFileDialog.idl">
+      <DependentUpon>CopyFileDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="FilePage.idl">
       <DependentUpon>FilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -402,6 +428,10 @@
     <Midl Include="MainWindow.idl">
       <SubType>Code</SubType>
       <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="ModifyTokenDialog.idl">
+      <DependentUpon>ModifyTokenDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
     </Midl>
     <Midl Include="Process_HandlePage.idl">
       <DependentUpon>Process_HandlePage.xaml</DependentUpon>

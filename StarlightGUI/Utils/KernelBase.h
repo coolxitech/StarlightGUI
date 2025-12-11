@@ -11,22 +11,23 @@ namespace winrt::StarlightGUI::implementation {
 		static bool IsRunningAsAdmin();
 
 		// Process
-		static BOOL _ZwTerminateProcess(DWORD pid);
-		static BOOL MurderProcess(DWORD pid);
+		static BOOL _ZwTerminateProcess(ULONG pid);
+		static BOOL MurderProcess(ULONG pid);
 
-		static BOOL _SuspendProcess(DWORD pid);
-		static BOOL _ResumeProcess(DWORD pid);
-		static BOOL HideProcess(DWORD pid);
-		static BOOL SetPPL(DWORD pid, int level);
-		static BOOL SetCriticalProcess(DWORD pid);
-		static BOOL InjectDLLToProcess(DWORD pid, PWCHAR dllPath);
+		static BOOL _SuspendProcess(ULONG pid);
+		static BOOL _ResumeProcess(ULONG pid);
+		static BOOL HideProcess(ULONG pid);
+		static BOOL SetPPL(ULONG pid, int level);
+		static BOOL SetCriticalProcess(ULONG pid);
+		static BOOL InjectDLLToProcess(ULONG pid, PWCHAR dllPath);
+		static BOOL ModifyProcessToken(ULONG pid, ULONG type);
 
 		// Thread
-		static BOOL _ZwTerminateThread(DWORD tid);
-		static BOOL MurderThread(DWORD tid);
+		static BOOL _ZwTerminateThread(ULONG tid);
+		static BOOL MurderThread(ULONG tid);
 
-		static BOOL _SuspendThread(DWORD tid);
-		static BOOL _ResumeThread(DWORD tid);
+		static BOOL _SuspendThread(ULONG tid);
+		static BOOL _ResumeThread(ULONG tid);
 
 		// Driver
 		static BOOL UnloadDriver(ULONG64 driverObj);
@@ -46,6 +47,7 @@ namespace winrt::StarlightGUI::implementation {
 		static BOOL _DeleteFileAuto(std::wstring path);
 		static BOOL MurderFileAuto(std::wstring path);
 		static BOOL LockFile(std::wstring path);
+		static BOOL _CopyFile(std::wstring from, std::wstring to, std::wstring name);
 
 		// System
 		static BOOL EnableDSE();

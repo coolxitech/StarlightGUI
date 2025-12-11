@@ -14,7 +14,7 @@ namespace winrt::StarlightGUI::implementation {
 	static HANDLE driverDevice = NULL;
 	static HANDLE driverDevice2 = NULL;
 
-	BOOL KernelInstance::_ZwTerminateProcess(DWORD pid) {
+	BOOL KernelInstance::_ZwTerminateProcess(ULONG pid) {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -23,7 +23,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_TERMINATE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::MurderProcess(DWORD pid) {
+	BOOL KernelInstance::MurderProcess(ULONG pid) {
         if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -32,7 +32,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_FORCE_TERMINATE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_SuspendProcess(DWORD pid) {
+	BOOL KernelInstance::_SuspendProcess(ULONG pid) {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -41,7 +41,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SUSPEND_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_ResumeProcess(DWORD pid) {
+	BOOL KernelInstance::_ResumeProcess(ULONG pid) {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -50,7 +50,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_RESUME_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::HideProcess(DWORD pid) {
+	BOOL KernelInstance::HideProcess(ULONG pid) {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -59,7 +59,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_HIDE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::SetPPL(DWORD pid, int level) {
+	BOOL KernelInstance::SetPPL(ULONG pid, int level) {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -73,7 +73,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SET_PPL, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::SetCriticalProcess(DWORD pid) {
+	BOOL KernelInstance::SetCriticalProcess(ULONG pid) {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -82,7 +82,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SET_CRITICAL_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::InjectDLLToProcess(DWORD pid, PWCHAR dllPath) {
+	BOOL KernelInstance::InjectDLLToProcess(ULONG pid, PWCHAR dllPath) {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -98,7 +98,23 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SHELLCODE_INJECT_DLL, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_ZwTerminateThread(DWORD tid) {
+	BOOL KernelInstance::ModifyProcessToken(ULONG pid, ULONG type) {
+		if (pid == 0) return FALSE;
+		if (!GetDriverDevice()) return FALSE;
+
+		struct INPUT {
+			ULONG PID;
+			ULONG Type;
+		};
+
+		INPUT in = { 0 };
+		in.PID = pid;
+		in.Type = type;
+
+		return DeviceIoControl(driverDevice, IOCTL_MODIFY_PROCESS_TOKEN, &in, sizeof(in), 0, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::_ZwTerminateThread(ULONG tid) {
 		if (tid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -107,7 +123,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_TERMINATE_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::MurderThread(DWORD tid) {
+	BOOL KernelInstance::MurderThread(ULONG tid) {
 		if (tid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -116,7 +132,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_FORCE_TERMINATE_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_SuspendThread(DWORD tid) {
+	BOOL KernelInstance::_SuspendThread(ULONG tid) {
 		if (tid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -125,7 +141,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SUSPEND_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_ResumeThread(DWORD tid) {
+	BOOL KernelInstance::_ResumeThread(ULONG tid) {
 		if (tid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -695,6 +711,31 @@ namespace winrt::StarlightGUI::implementation {
 		RtlInitUnicodeString(filePath, targetPath);
 
 		return DeviceIoControl(driverDevice, IOCTL_LOCK_FILE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
+	}
+
+	BOOL KernelInstance::_CopyFile(std::wstring from, std::wstring to, std::wstring name) {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		struct INPUT
+		{
+			UNICODE_STRING FilePath[MAX_PATH];
+			UNICODE_STRING FileName[MAX_PATH];
+			UNICODE_STRING TargetFilePath[MAX_PATH];
+		};
+
+		WCHAR fromPath[MAX_PATH];
+		wcscpy_s(fromPath, L"\\??\\");
+		wcscat_s(fromPath, from.c_str());
+		WCHAR toPath[MAX_PATH];
+		wcscpy_s(toPath, L"\\??\\");
+		wcscat_s(toPath, to.c_str());
+
+		INPUT input = { 0 };
+		RtlInitUnicodeString(input.FilePath, fromPath);
+		RtlInitUnicodeString(input.FileName, name.c_str());
+		RtlInitUnicodeString(input.TargetFilePath, toPath);
+
+		return DeviceIoControl(driverDevice, IOCTL_NTFS_COPY_FILE, &input, sizeof(INPUT), NULL, sizeof(ULONG), 0, 0);
 	}
 
 	BOOL KernelInstance::DisableDSE() {

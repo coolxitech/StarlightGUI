@@ -7,6 +7,8 @@ namespace winrt::StarlightGUI::implementation {
 
     std::wstring FixBackSplash(const hstring& hstr);
 
+    std::wstring RemoveFromString(const hstring& hstr, const hstring& removeStr);
+
     std::wstring GetParentDirectory(const hstring& path);
 
     std::string WideStringToString(const hstring& hstr);

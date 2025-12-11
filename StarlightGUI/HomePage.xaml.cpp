@@ -301,9 +301,7 @@ namespace winrt::StarlightGUI::implementation
 
                     if (astralFile) {
                         astralPath = astralFile.Path();
-                        KernelInstance::DisableDSE();
                         DriverUtils::LoadDriver(astralPath.c_str(), L"AstralX", unused);
-                        KernelInstance::EnableDSE();
                     }
                 }
 

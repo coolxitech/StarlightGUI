@@ -45,6 +45,15 @@
     <Page Include="FilePage.xaml">
       <Filter>Pages</Filter>
     </Page>
+    <Page Include="UpdateDialog.xaml">
+      <Filter>Utils\Elements</Filter>
+    </Page>
+    <Page Include="CopyFileDialog.xaml">
+      <Filter>Utils\Elements</Filter>
+    </Page>
+    <Page Include="ModifyTokenDialog.xaml">
+      <Filter>Utils\Elements</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />
@@ -357,6 +366,7 @@
     <Image Include="Assets\HO-COOH.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Assets\MuLin.png" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

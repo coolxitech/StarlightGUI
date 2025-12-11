@@ -11,12 +11,11 @@ namespace winrt::StarlightGUI::implementation
     {
         TaskPage();
 
-        void StartLoop();
-
         winrt::fire_and_forget RefreshProcessListButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::fire_and_forget TerminateProcessButton_Click(IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::fire_and_forget CreateProcessButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         winrt::fire_and_forget InjectDLL(ULONG pid);
+        winrt::fire_and_forget ModifyToken(ULONG pid);
 
         void ProcessListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e);
 
@@ -36,7 +35,6 @@ namespace winrt::StarlightGUI::implementation
         };
 
         bool m_isLoadingProcesses = false;
-        winrt::Microsoft::UI::Xaml::DispatcherTimer defaultRefreshTimer;
         winrt::Microsoft::UI::Xaml::DispatcherTimer reloadTimer;
 
         inline static bool m_isLoading = false;

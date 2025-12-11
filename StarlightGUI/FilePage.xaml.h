@@ -31,6 +31,8 @@ namespace winrt::StarlightGUI::implementation
             winrt::multi_threaded_observable_vector<winrt::StarlightGUI::FileInfo>()
         };
 
+        winrt::fire_and_forget CopyFiles();
+
         void AddPreviousItem();
         winrt::fire_and_forget LoadMoreFiles();
         void CheckAndLoadMoreItems();

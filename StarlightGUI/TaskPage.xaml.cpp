@@ -24,6 +24,7 @@
 #include <MainWindow.xaml.h>
 #include <RunProcessDialog.xaml.h>
 #include <InjectDLLDialog.xaml.h>
+#include <ModifyTokenDialog.xaml.h>
 
 using namespace winrt;
 using namespace WinUI3Package;
@@ -63,27 +64,14 @@ namespace winrt::StarlightGUI::implementation
         hdc = GetDC(NULL);
 
         this->Loaded([this](auto&&, auto&&) {
-            StartLoop();
+            LoadProcessList(true);
             loaded = true;
 			});
 
         this->Unloaded([this](auto&&, auto&&) {
-            defaultRefreshTimer.Stop();
             reloadTimer.Stop();
             ReleaseDC(NULL, hdc);
             });
-    }
-
-    void TaskPage::StartLoop() {
-        // 加载一次列表
-        LoadProcessList(true);
-
-        // 每10秒刷新一次列表
-        defaultRefreshTimer.Interval(std::chrono::seconds(10));
-        defaultRefreshTimer.Tick([this](auto&&, auto&&) {
-            if (g_mainWindowInstance->m_openWindows.empty()) LoadProcessList(true);
-            });
-        defaultRefreshTimer.Start();
     }
 
     void TaskPage::ProcessListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -327,10 +315,21 @@ namespace winrt::StarlightGUI::implementation
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_5.IsEnabled(false);
 
+        // 选项2.6
         MenuFlyoutItem item2_6;
-        item2_6.Icon(CreateFontIcon(L"\uf1e8"));
-        item2_6.Text(L"效率模式");
+        item2_6.Icon(CreateFontIcon(L"\ue70f"));
+        item2_6.Text(L"修改令牌");
         item2_6.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            ModifyToken(item.Id());
+            co_return;
+            });
+        if (!KernelInstance::IsRunningAsAdmin()) item2_6.IsEnabled(false);
+
+        // 选项2.7
+        MenuFlyoutItem item2_7;
+        item2_7.Icon(CreateFontIcon(L"\uf1e8"));
+        item2_7.Text(L"效率模式");
+        item2_7.Click([this, item](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
             if (TaskUtils::EnableProcessPerformanceMode(item)) {
                 CreateInfoBarAndDisplay(L"成功", L"成功为进程开启效率模式: " + item.Name() + L" (" + to_hstring(item.Id()) + L")", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
                 WaitAndReloadAsync(1000);
@@ -437,6 +436,7 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.Items().Append(item2_4);
         menuFlyout.Items().Append(item2_5);
         menuFlyout.Items().Append(item2_6);
+        menuFlyout.Items().Append(item2_7);
         menuFlyout.Items().Append(separator2);
         menuFlyout.Items().Append(item3_1);
         menuFlyout.Items().Append(item3_2);
@@ -850,10 +850,6 @@ namespace winrt::StarlightGUI::implementation
 
         co_await LoadProcessList(true);
 
-        // 重启计时器
-        defaultRefreshTimer.Stop();
-        defaultRefreshTimer.Start();
-
         RefreshProcessListButton().IsEnabled(true);
         co_return;
     }
@@ -961,6 +957,40 @@ namespace winrt::StarlightGUI::implementation
                 }
                 else {
                     CreateInfoBarAndDisplay(L"失败", L"注入失败，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                }
+            }
+        }
+        catch (winrt::hresult_error const& ex) {
+            CreateInfoBarAndDisplay(L"错误", L"显示对话框失败: " + ex.message(),
+                InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+        }
+        co_return;
+    }
+
+    winrt::fire_and_forget TaskPage::ModifyToken(ULONG pid) {
+        try {
+            auto dialog = winrt::make<winrt::StarlightGUI::implementation::ModifyTokenDialog>();
+            dialog.XamlRoot(this->XamlRoot());
+
+            auto result = co_await dialog.ShowAsync();
+
+            if (result == ContentDialogResult::Primary) {
+                int tokenType = dialog.Token();
+
+                // 如果是TrustedInstaller的话要先启动服务，检测一下
+                if (tokenType == 1) {
+                    if (FindProcessId(L"TrustedInstaller.exe") == 0) {
+                        CreateInfoBarAndDisplay(L"失败", L"未启动TrustedInstaller服务！请手动启动！", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+                        co_return;
+                    }
+                }
+
+                if (KernelInstance::ModifyProcessToken(pid, tokenType)) {
+                    CreateInfoBarAndDisplay(L"成功", L"成功修改令牌！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+                    WaitAndReloadAsync(1000);
+                }
+                else {
+                    CreateInfoBarAndDisplay(L"失败", L"修改令牌失败，错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
                 }
             }
         }
