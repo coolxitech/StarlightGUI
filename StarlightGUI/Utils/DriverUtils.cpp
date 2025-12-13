@@ -2,7 +2,7 @@
 #include "KernelBase.h"
 
 namespace winrt::StarlightGUI::implementation {
-	bool DriverUtils::LoadKernelDriver(LPCWSTR kernelPath, std::wstring& dbgMsg) {
+	bool DriverUtils::LoadKernelDriver(LPCWSTR kernelPath, std::wstring& dbgMsg) noexcept {
 		SC_HANDLE hSCM, hService;
 
 		hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
@@ -66,7 +66,7 @@ namespace winrt::StarlightGUI::implementation {
 		return false;
 	}
 
-	bool DriverUtils::LoadDriver(LPCWSTR kernelPath, LPCWSTR fileName, std::wstring& dbgMsg) {
+	bool DriverUtils::LoadDriver(LPCWSTR kernelPath, LPCWSTR fileName, std::wstring& dbgMsg) noexcept {
 		SC_HANDLE hSCM, hService;
 
 		hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);

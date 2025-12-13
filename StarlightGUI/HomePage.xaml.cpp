@@ -46,7 +46,7 @@ namespace winrt::StarlightGUI::implementation
         try {
             FetchHitokoto();
         }
-        catch (...) {
+        catch (hresult_error) {
             hitokoto = L"无法加载内容... :(";
         }
         SetupClock();
@@ -63,7 +63,7 @@ namespace winrt::StarlightGUI::implementation
                 try {
                     CheckUpdate();
                 }
-                catch (...) {
+                catch (hresult_error) {
                     CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 }
                 loaded = true;

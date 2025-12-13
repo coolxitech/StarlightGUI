@@ -54,6 +54,9 @@
     <Page Include="ModifyTokenDialog.xaml">
       <Filter>Utils\Elements</Filter>
     </Page>
+    <Page Include="UtilityPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="MainWindow.idl" />

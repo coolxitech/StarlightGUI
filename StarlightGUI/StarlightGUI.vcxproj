@@ -35,6 +35,7 @@
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <CppWinRTProjectLanguage>C++/WinRT</CppWinRTProjectLanguage>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
@@ -228,6 +229,10 @@
       <DependentUpon>UpdateDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="UtilityPage.xaml.h">
+      <DependentUpon>UtilityPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="Utils\AstralIO.h" />
     <ClInclude Include="Utils\Config.h" />
     <ClInclude Include="Utils\CppUtils.h" />
@@ -296,6 +301,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UpdateDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UtilityPage.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
@@ -377,6 +385,10 @@
     </ClCompile>
     <ClCompile Include="UpdateDialog.xaml.cpp">
       <DependentUpon>UpdateDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="UtilityPage.xaml.cpp">
+      <DependentUpon>UtilityPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="Utils\CppUtils.cpp" />
@@ -463,6 +475,10 @@
     </Midl>
     <Midl Include="UpdateDialog.idl">
       <DependentUpon>UpdateDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
+    <Midl Include="UtilityPage.idl">
+      <DependentUpon>UtilityPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
     <Midl Include="Utils\FileInfo.idl" />

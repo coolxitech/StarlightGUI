@@ -94,6 +94,11 @@
                         <FontIcon Glyph="&#xec50;" FontFamily="Segoe Fluent Icons"/>
                     </controls:NavigationViewItem.Icon>
                 </controls:NavigationViewItem>
+                <controls:NavigationViewItem Content="系统功能">
+                    <controls:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xec7a;" FontFamily="Segoe Fluent Icons"/>
+                    </controls:NavigationViewItem.Icon>
+                </controls:NavigationViewItem>
             </controls:NavigationView.MenuItems>
 
             <!-- 从下到上 -->

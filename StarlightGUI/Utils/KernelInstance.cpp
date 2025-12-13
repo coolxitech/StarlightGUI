@@ -14,7 +14,7 @@ namespace winrt::StarlightGUI::implementation {
 	static HANDLE driverDevice = NULL;
 	static HANDLE driverDevice2 = NULL;
 
-	BOOL KernelInstance::_ZwTerminateProcess(ULONG pid) {
+	BOOL KernelInstance::_ZwTerminateProcess(ULONG pid) noexcept {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -23,7 +23,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_TERMINATE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::MurderProcess(ULONG pid) {
+	BOOL KernelInstance::MurderProcess(ULONG pid) noexcept {
         if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -32,7 +32,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_FORCE_TERMINATE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_SuspendProcess(ULONG pid) {
+	BOOL KernelInstance::_SuspendProcess(ULONG pid) noexcept {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -41,7 +41,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SUSPEND_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_ResumeProcess(ULONG pid) {
+	BOOL KernelInstance::_ResumeProcess(ULONG pid) noexcept {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -50,7 +50,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_RESUME_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::HideProcess(ULONG pid) {
+	BOOL KernelInstance::HideProcess(ULONG pid) noexcept {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -59,7 +59,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_HIDE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::SetPPL(ULONG pid, int level) {
+	BOOL KernelInstance::SetPPL(ULONG pid, int level) noexcept {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -73,7 +73,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SET_PPL, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::SetCriticalProcess(ULONG pid) {
+	BOOL KernelInstance::SetCriticalProcess(ULONG pid) noexcept {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -82,7 +82,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SET_CRITICAL_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::InjectDLLToProcess(ULONG pid, PWCHAR dllPath) {
+	BOOL KernelInstance::InjectDLLToProcess(ULONG pid, PWCHAR dllPath) noexcept {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -98,7 +98,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SHELLCODE_INJECT_DLL, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::ModifyProcessToken(ULONG pid, ULONG type) {
+	BOOL KernelInstance::ModifyProcessToken(ULONG pid, ULONG type) noexcept {
 		if (pid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -114,7 +114,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_MODIFY_PROCESS_TOKEN, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_ZwTerminateThread(ULONG tid) {
+	BOOL KernelInstance::_ZwTerminateThread(ULONG tid) noexcept {
 		if (tid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -123,7 +123,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_TERMINATE_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::MurderThread(ULONG tid) {
+	BOOL KernelInstance::MurderThread(ULONG tid) noexcept {
 		if (tid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -132,7 +132,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_FORCE_TERMINATE_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_SuspendThread(ULONG tid) {
+	BOOL KernelInstance::_SuspendThread(ULONG tid) noexcept {
 		if (tid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -141,7 +141,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_SUSPEND_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_ResumeThread(ULONG tid) {
+	BOOL KernelInstance::_ResumeThread(ULONG tid) noexcept {
 		if (tid == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -150,7 +150,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_RESUME_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::UnloadDriver(ULONG64 driverObj) {
+	BOOL KernelInstance::UnloadDriver(ULONG64 driverObj) noexcept {
 		if (driverObj == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -159,7 +159,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_UNLOAD_DRIVER, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::HideDriver(ULONG64 driverObj) {
+	BOOL KernelInstance::HideDriver(ULONG64 driverObj) noexcept {
 		if (driverObj == 0) return FALSE;
 		if (!GetDriverDevice()) return FALSE;
 
@@ -168,7 +168,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_HIDE_DRIVER, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) {
+	BOOL KernelInstance::EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept {
 		if (!GetDriverDevice2() || !IsRunningAsAdmin()) return FALSE;
 
 
@@ -231,7 +231,7 @@ namespace winrt::StarlightGUI::implementation {
 		return status && bRet;
 	}
 
-	BOOL KernelInstance::EnumProcessThread(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads)
+	BOOL KernelInstance::EnumProcessThread(ULONG64 eprocess, std::vector<winrt::StarlightGUI::ThreadInfo>& threads) noexcept
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL status = FALSE;
@@ -315,7 +315,7 @@ namespace winrt::StarlightGUI::implementation {
 		return status;
 	}
 
-	BOOL KernelInstance::EnumProcessHandle(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles)
+	BOOL KernelInstance::EnumProcessHandle(ULONG pid, std::vector<winrt::StarlightGUI::HandleInfo>& handles) noexcept
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
@@ -359,7 +359,7 @@ namespace winrt::StarlightGUI::implementation {
 		return bRet;
 	}
 
-	BOOL KernelInstance::EnumProcessModule(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& modules)
+	BOOL KernelInstance::EnumProcessModule(ULONG64 eprocess, std::vector<winrt::StarlightGUI::MokuaiInfo>& modules) noexcept
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
@@ -400,7 +400,7 @@ namespace winrt::StarlightGUI::implementation {
 		return bRet;
 	}
 
-	BOOL KernelInstance::EnumProcessKernelCallbackTable(ULONG64 eprocess, std::vector<winrt::StarlightGUI::KCTInfo>& modules)
+	BOOL KernelInstance::EnumProcessKernelCallbackTable(ULONG64 eprocess, std::vector<winrt::StarlightGUI::KCTInfo>& modules) noexcept
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
@@ -439,7 +439,7 @@ namespace winrt::StarlightGUI::implementation {
 		return bRet;
 	}
 
-	BOOL KernelInstance::EnumDrivers(std::vector<winrt::StarlightGUI::KernelModuleInfo>& kernelModules) {
+	BOOL KernelInstance::EnumDrivers(std::vector<winrt::StarlightGUI::KernelModuleInfo>& kernelModules) noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		struct INPUT {
@@ -481,7 +481,7 @@ namespace winrt::StarlightGUI::implementation {
 		return status && bRet;
 	}
 
-	BOOL KernelInstance::QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files)
+	BOOL KernelInstance::QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files) noexcept
 	{
 		BOOL bRet = FALSE;
 		ULONG nRet = 0;
@@ -605,7 +605,7 @@ namespace winrt::StarlightGUI::implementation {
 		return bRet;
 	}
 
-	BOOL KernelInstance::_DeleteFile(std::wstring path) {
+	BOOL KernelInstance::_DeleteFile(std::wstring path) noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		WCHAR targetPath[MAX_PATH];
@@ -618,7 +618,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_DELETE_FILE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::MurderFile(std::wstring path) {
+	BOOL KernelInstance::MurderFile(std::wstring path) noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		WCHAR targetPath[MAX_PATH];
@@ -637,7 +637,7 @@ namespace winrt::StarlightGUI::implementation {
 		return status;
 	}
 
-	BOOL KernelInstance::DeleteFileAuto(std::wstring path) {
+	BOOL KernelInstance::DeleteFileAuto(std::wstring path) noexcept {
 		if (!fs::exists(path)) {
 			return FALSE;
 		}
@@ -658,7 +658,7 @@ namespace winrt::StarlightGUI::implementation {
 		}
 	}
 
-	BOOL KernelInstance::_DeleteFileAuto(std::wstring path) {
+	BOOL KernelInstance::_DeleteFileAuto(std::wstring path) noexcept {
 		if (!fs::exists(path)) {
 			return FALSE;
 		}
@@ -679,7 +679,7 @@ namespace winrt::StarlightGUI::implementation {
 		}
 	}
 
-	BOOL KernelInstance::MurderFileAuto(std::wstring path) {
+	BOOL KernelInstance::MurderFileAuto(std::wstring path) noexcept {
 		if (!fs::exists(path)) {
 			return FALSE;
 		}
@@ -700,7 +700,7 @@ namespace winrt::StarlightGUI::implementation {
 		}
 	}
 
-	BOOL KernelInstance::LockFile(std::wstring path) {
+	BOOL KernelInstance::LockFile(std::wstring path) noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		WCHAR targetPath[MAX_PATH];
@@ -713,7 +713,7 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_LOCK_FILE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
 	}
 
-	BOOL KernelInstance::_CopyFile(std::wstring from, std::wstring to, std::wstring name) {
+	BOOL KernelInstance::_CopyFile(std::wstring from, std::wstring to, std::wstring name) noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		struct INPUT
@@ -738,14 +738,135 @@ namespace winrt::StarlightGUI::implementation {
 		return DeviceIoControl(driverDevice, IOCTL_NTFS_COPY_FILE, &input, sizeof(INPUT), NULL, sizeof(ULONG), 0, 0);
 	}
 
-	BOOL KernelInstance::DisableDSE() {
+	BOOL KernelInstance::EnableCreateProcess() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_CREATEPROCESS, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableCreateProcess() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_CREATEPROCESS, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::EnableCreateFile() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_CREATEFILE, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableCreateFile() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_CREATEFILE, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::EnableLoadDriver() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_LOADDRIVER, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableLoadDriver() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_LOADDRIVER, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::EnableUnloadDriver() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_UNLOADDRIVER, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableUnloadDriver() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_UNLOADDRIVER, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::EnableModifyRegistry() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_MODIFY_REGISTRY, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableModifyRegistry() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_MODIFY_REGISTRY, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::ProtectDisk() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_PROTECT_DISK, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::UnprotectDisk() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_UNPROTECT_DISK, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::EnableObCallback() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_ENABLE_OBCALLBACK, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableObCallback() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_DISABLE_OBCALLBACK, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::EnableDSE() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_ENABLE_DSE, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableDSE() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		return DeviceIoControl(driverDevice, IOCTL_DISABLE_DSE, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
-	BOOL KernelInstance::EnableDSE() {
+	BOOL KernelInstance::EnableCmpCallback() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
-		return DeviceIoControl(driverDevice, IOCTL_ENABLE_DSE, NULL, 0, NULL, 0, NULL, NULL);
+		return DeviceIoControl(driverDevice, IOCTL_ENABLE_CMPCALLBACK, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableCmpCallback() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_DISABLE_CMPCALLBACK, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::EnableLKD() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_ENABLE_LKD, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::DisableLKD() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_DISABLE_LKD, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::Shutdown() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_SHUTDOWN, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::Reboot() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_REBOOT, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::RebootForce() noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		return DeviceIoControl(driverDevice, IOCTL_FORCE_REBOOT, NULL, 0, NULL, 0, NULL, NULL);
+	}
+
+	BOOL KernelInstance::BlueScreen(ULONG color) noexcept {
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+
+		if (color == -1) {
+			return DeviceIoControl(driverDevice, IOCTL_BLUESCREEN, NULL, 0, NULL, 0, NULL, NULL);
+		}
+		else {
+			struct INPUT {
+				ULONG color;
+			};
+			INPUT input = { color };
+
+			return DeviceIoControl(driverDevice, IOCTL_CRASH_SYSTEM_SET_COLOR, &input, sizeof(input), NULL, 0, NULL, NULL);
+		}
 	}
 
 
@@ -756,7 +877,7 @@ namespace winrt::StarlightGUI::implementation {
 	/*
 	* 获取驱动设备位置
 	*/
-	BOOL KernelInstance::GetDriverDevice() {
+	BOOL KernelInstance::GetDriverDevice() noexcept {
 		if (driverDevice != NULL) return TRUE;
 		if (!DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused)) return FALSE;
 
@@ -768,7 +889,7 @@ namespace winrt::StarlightGUI::implementation {
 		return TRUE;
 	}
 
-	BOOL KernelInstance::GetDriverDevice2() {
+	BOOL KernelInstance::GetDriverDevice2() noexcept {
 		if (driverDevice2 != NULL) return TRUE;
 
 		HANDLE device = CreateFile(L"\\\\.\\AstralX", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
@@ -779,7 +900,7 @@ namespace winrt::StarlightGUI::implementation {
 		return TRUE;
 	}
 
-	bool KernelInstance::IsRunningAsAdmin() {
+	bool KernelInstance::IsRunningAsAdmin() noexcept {
 		HANDLE hToken = nullptr;
 		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
 			return false;

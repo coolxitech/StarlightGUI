@@ -104,6 +104,10 @@ namespace winrt::StarlightGUI::implementation
             MainFrame().Navigate(xaml_typename<StarlightGUI::FilePage>());
             RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(3));
         }
+        else if (invokedItem == L"系统功能") {
+            MainFrame().Navigate(xaml_typename<StarlightGUI::UtilityPage>());
+            RootNavigation().SelectedItem(RootNavigation().MenuItems().GetAt(4));
+        }
         else if (invokedItem == L"关于") {
             MainFrame().Navigate(xaml_typename<StarlightGUI::HelpPage>());
             RootNavigation().SelectedItem(RootNavigation().FooterMenuItems().GetAt(0));
