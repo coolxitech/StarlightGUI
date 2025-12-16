@@ -66,6 +66,8 @@ namespace winrt::StarlightGUI::implementation
                 loaded = true;
                 });
         }
+
+        LOG_INFO(L"KernelModulePage", L"KernelModulePage initialized.");
     }
 
     void KernelModulePage::KernelModuleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -181,8 +183,9 @@ namespace winrt::StarlightGUI::implementation
         if (m_isLoadingKernelModules) {
             co_return;
         }
-
         m_isLoadingKernelModules = true;
+
+        LOG_INFO(__WFUNCTION__, L"Loading kernel module list...");
 
         LoadingRing().IsActive(true);
 
@@ -197,21 +200,18 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::KernelModuleInfo> kernelModules;
 
         if (std::chrono::duration_cast<std::chrono::seconds>(start - lastRefresh).count() >= 1) {
-
+            LOG_INFO(__WFUNCTION__, L"Time has passed over 1 sec, so we will do a full refresh.");
             kernelModules.reserve(200);
 
-            try {
-                KernelInstance::EnumDrivers(kernelModules);
-            }
-            catch (...) {
-
-            }
+            KernelInstance::EnumDrivers(kernelModules);
+            LOG_INFO(__WFUNCTION__, L"Enumerated kernel modules, %d entry(s).", kernelModules.size());
 
             fullRecordedKernelModules = kernelModules;
 
             lastRefresh = std::chrono::steady_clock::now();
         }
         else {
+            LOG_INFO(__WFUNCTION__, L"Using cached list.");
             kernelModules = fullRecordedKernelModules;
         }
 
@@ -244,6 +244,7 @@ namespace winrt::StarlightGUI::implementation
 
         LoadingRing().IsActive(false);
 
+        LOG_INFO(__WFUNCTION__, L"Loaded kernel module list, %d entry(s) in total.", m_kernelModuleList.Size());
         m_isLoadingKernelModules = false;
     }
 
@@ -388,6 +389,7 @@ namespace winrt::StarlightGUI::implementation
                 auto file = co_await winrt::Windows::Storage::StorageFile::GetFileFromPathAsync(driverPath);
 
                 if (bypass) {
+                    LOG_WARNING(__WFUNCTION__, L"Bypass flag enabled! Disabling DSE...");
                     KernelInstance::DisableDSE();
                 }
 

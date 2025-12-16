@@ -20,6 +20,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { pid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d]", IOCTL_TERMINATE_PROCESS, __WFUNCTION__.c_str(), pid);
 		return DeviceIoControl(driverDevice, IOCTL_TERMINATE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -29,6 +30,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { pid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d]", IOCTL_FORCE_TERMINATE_PROCESS, __WFUNCTION__.c_str(), pid);
 		return DeviceIoControl(driverDevice, IOCTL_FORCE_TERMINATE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -38,6 +40,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { pid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d]", IOCTL_SUSPEND_PROCESS, __WFUNCTION__.c_str(), pid);
 		return DeviceIoControl(driverDevice, IOCTL_SUSPEND_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -47,6 +50,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { pid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d]", IOCTL_RESUME_PROCESS, __WFUNCTION__.c_str(), pid);
 		return DeviceIoControl(driverDevice, IOCTL_RESUME_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -56,6 +60,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { pid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d]", IOCTL_HIDE_PROCESS, __WFUNCTION__.c_str(), pid);
 		return DeviceIoControl(driverDevice, IOCTL_HIDE_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -70,6 +75,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		INPUT in = { pid, level };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d, level=%d]", IOCTL_TERMINATE_PROCESS, __WFUNCTION__.c_str(), pid, level);
 		return DeviceIoControl(driverDevice, IOCTL_SET_PPL, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -79,6 +85,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { pid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d]", IOCTL_SET_CRITICAL_PROCESS, __WFUNCTION__.c_str(), pid);
 		return DeviceIoControl(driverDevice, IOCTL_SET_CRITICAL_PROCESS, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -95,6 +102,7 @@ namespace winrt::StarlightGUI::implementation {
 		in.PID = pid;
 		RtlInitUnicodeString(in.DllPath, dllPath);
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d, dllPath=%s]", IOCTL_SHELLCODE_INJECT_DLL, __WFUNCTION__.c_str(), pid, dllPath);
 		return DeviceIoControl(driverDevice, IOCTL_SHELLCODE_INJECT_DLL, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -111,6 +119,7 @@ namespace winrt::StarlightGUI::implementation {
 		in.PID = pid;
 		in.Type = type;
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d, type=%d]", IOCTL_MODIFY_PROCESS_TOKEN, __WFUNCTION__.c_str(), pid, type);
 		return DeviceIoControl(driverDevice, IOCTL_MODIFY_PROCESS_TOKEN, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -120,6 +129,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { tid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [tid=%d]", IOCTL_TERMINATE_THREAD, __WFUNCTION__.c_str(), tid);
 		return DeviceIoControl(driverDevice, IOCTL_TERMINATE_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -129,6 +139,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { tid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [tid=%d]", IOCTL_FORCE_TERMINATE_THREAD, __WFUNCTION__.c_str(), tid);
 		return DeviceIoControl(driverDevice, IOCTL_FORCE_TERMINATE_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -138,6 +149,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { tid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [tid=%d]", IOCTL_SUSPEND_THREAD, __WFUNCTION__.c_str(), tid);
 		return DeviceIoControl(driverDevice, IOCTL_SUSPEND_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -147,6 +159,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		PROCESS_INPUT in = { tid };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [tid=%d]", IOCTL_RESUME_THREAD, __WFUNCTION__.c_str(), tid);
 		return DeviceIoControl(driverDevice, IOCTL_RESUME_THREAD, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -156,6 +169,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		DRIVER_INPUT in = { (PVOID)driverObj };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [driverObj=0x%X]", IOCTL_UNLOAD_DRIVER, __WFUNCTION__.c_str(), driverObj);
 		return DeviceIoControl(driverDevice, IOCTL_UNLOAD_DRIVER, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
@@ -165,12 +179,12 @@ namespace winrt::StarlightGUI::implementation {
 
 		DRIVER_INPUT in = { (PVOID)driverObj };
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [driverObj=0x%X]", IOCTL_HIDE_DRIVER, __WFUNCTION__.c_str(), driverObj);
 		return DeviceIoControl(driverDevice, IOCTL_HIDE_DRIVER, &in, sizeof(in), 0, 0, 0, NULL);
 	}
 
 	BOOL KernelInstance::EnumProcess(std::unordered_map<DWORD, int> processMap, std::vector<winrt::StarlightGUI::ProcessInfo>& targetList) noexcept {
 		if (!GetDriverDevice2() || !IsRunningAsAdmin()) return FALSE;
-
 
 		BOOL bRet = FALSE;
 		ENUM_PROCESS input = { 0 };
@@ -183,6 +197,7 @@ namespace winrt::StarlightGUI::implementation {
 
 		BOOL status;
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_AX_ENUM_PROCESSES, __WFUNCTION__.c_str());
 		status = DeviceIoControl(driverDevice2, IOCTL_AX_ENUM_PROCESSES, &input, sizeof(ENUM_PROCESS), &input, sizeof(ENUM_PROCESS), 0, NULL);
 
 		if (status)
@@ -250,6 +265,7 @@ namespace winrt::StarlightGUI::implementation {
 		inputs.nSize = sizeof(DATA_INFO) * 1000;
 		inputs.pBuffer = (PDATA_INFO)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [eprocess=0x%X]", IOCTL_ENUM_PROCESS_THREAD_CIDTABLE, __WFUNCTION__.c_str(), eprocess);
 		status = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_THREAD_CIDTABLE, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
 
 		if (nRet > 1000) nRet = 1000;
@@ -319,6 +335,7 @@ namespace winrt::StarlightGUI::implementation {
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
+		ULONG nRet = 0;
 
 		struct INPUT
 		{
@@ -333,7 +350,7 @@ namespace winrt::StarlightGUI::implementation {
 		inputs.pBuffer = (PDATA_INFO)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
 		inputs.PID = pid;
 
-		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [pid=%d]", IOCTL_ENUM_PROCESS_EXIST_HANDLE, __WFUNCTION__.c_str(), pid);
 		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_EXIST_HANDLE, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
 
 		if (nRet > 1000) nRet = 1000;
@@ -363,6 +380,7 @@ namespace winrt::StarlightGUI::implementation {
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
+		ULONG nRet = 0;
 
 		struct INPUT
 		{
@@ -377,7 +395,7 @@ namespace winrt::StarlightGUI::implementation {
 		inputs.pBuffer = (PDATA_INFO)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
 		inputs.eproc = (PVOID)eprocess;
 
-		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [eprocess=0x%X]", IOCTL_ENUM_PROCESS_MODULE, __WFUNCTION__.c_str(), eprocess);
 		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_PROCESS_MODULE, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
 
 		if (nRet > 1000) nRet = 1000;
@@ -404,6 +422,7 @@ namespace winrt::StarlightGUI::implementation {
 	{
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
+		ULONG nRet = 0;
 
 		struct INPUT
 		{
@@ -418,7 +437,7 @@ namespace winrt::StarlightGUI::implementation {
 		inputs.pBuffer = (PDATA_INFO)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
 		inputs.eproc = (PVOID)eprocess;
 
-		ULONG nRet = 0;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [eprocess=0x%X]", IOCTL_ENUM_KERNELCALLBACKTABLE, __WFUNCTION__.c_str(), eprocess);
 		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_KERNELCALLBACKTABLE, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, NULL);
 
 		if (nRet > 1000) nRet = 1000;
@@ -455,10 +474,10 @@ namespace winrt::StarlightGUI::implementation {
 		input.nSize = sizeof(ALL_DRIVERS) * 1000;
 		input.pBuffer = (PALL_DRIVERS)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, input.nSize);
 
-		BOOL status;
-		status = DeviceIoControl(driverDevice, IOCTL_ENUM_DRIVERS, &input, sizeof(INPUT), 0, 0, 0, NULL);
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENUM_DRIVERS, __WFUNCTION__.c_str());
+		BOOL status = DeviceIoControl(driverDevice, IOCTL_ENUM_DRIVERS, &input, sizeof(INPUT), 0, 0, 0, NULL);
 
-		if (status && input.pBuffer->nCnt > 0)
+		if (status && input.pBuffer && input.pBuffer->nCnt > 0)
 		{
 			for (ULONG i = 0; i < input.pBuffer->nCnt; i++)
 			{
@@ -483,6 +502,7 @@ namespace winrt::StarlightGUI::implementation {
 
 	BOOL KernelInstance::QueryFile(std::wstring path, std::vector<winrt::StarlightGUI::FileInfo>& files) noexcept
 	{
+		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 		BOOL bRet = FALSE;
 		ULONG nRet = 0;
 		std::string enumFileMode = ReadConfig("enum_file_mode", "ENUM_FILE_NTAPI");
@@ -493,6 +513,8 @@ namespace winrt::StarlightGUI::implementation {
 			PDATA_INFO pBuffer;
 			UNICODE_STRING path[MAX_PATH];
 		};
+
+		LOG_WARNING(L"KernelInstance", L"Enum file mode: %s", to_hstring(enumFileMode).c_str());
 
 		INPUT inputs = { 0 };
 
@@ -512,6 +534,7 @@ namespace winrt::StarlightGUI::implementation {
 		inputs.pBuffer = (DATA_INFO*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, inputs.nSize);
 		if (enumFileMode == "ENUM_FILE_NTFSPARSER")
 		{
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [path=%s]", IOCTL_NTFS_PARSER_ENUM_FILE2, __WFUNCTION__.c_str(), path.c_str());
 			bRet = DeviceIoControl(driverDevice, IOCTL_NTFS_PARSER_ENUM_FILE2, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, 0);
 			if (bRet && nRet > 0 && nRet < 10000)
 			{
@@ -553,6 +576,7 @@ namespace winrt::StarlightGUI::implementation {
 		}
 		else if (enumFileMode == "ENUM_FILE_NTAPI")
 		{
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [path=%s]", IOCTL_QUERY_FILE2, __WFUNCTION__.c_str(), path.c_str());
 			bRet = DeviceIoControl(driverDevice, IOCTL_QUERY_FILE2, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, 0);
 			if (bRet && nRet > 0 && nRet < 10000)
 			{
@@ -578,6 +602,7 @@ namespace winrt::StarlightGUI::implementation {
 		}
 		else if (enumFileMode == "ENUM_FILE_IRP")
 		{
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [path=%s]", IOCTL_QUERY_FILE_IRP, __WFUNCTION__.c_str(), path.c_str());
 			bRet = DeviceIoControl(driverDevice, IOCTL_QUERY_FILE_IRP, &inputs, sizeof(INPUT), &nRet, sizeof(ULONG), 0, 0);
 			if (bRet && nRet > 0 && nRet < 10000)
 			{
@@ -615,6 +640,7 @@ namespace winrt::StarlightGUI::implementation {
 		UNICODE_STRING filePath[MAX_PATH];
 		RtlInitUnicodeString(filePath, targetPath);
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [path=%s]", IOCTL_DELETE_FILE_UNICODE, __WFUNCTION__.c_str(), path.c_str());
 		return DeviceIoControl(driverDevice, IOCTL_DELETE_FILE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
 	}
 
@@ -628,10 +654,12 @@ namespace winrt::StarlightGUI::implementation {
 		UNICODE_STRING filePath[MAX_PATH];
 		RtlInitUnicodeString(filePath, targetPath);
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [path=%s]", IOCTL_FORCE_DELETE_UNICODE, __WFUNCTION__.c_str(), path.c_str());
 		BOOL status = DeviceIoControl(driverDevice, IOCTL_FORCE_DELETE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
 
 		if (status) {
-			DeleteFileW(path.c_str());
+			status = DeleteFileW(path.c_str());
+			LOG_INFO(L"KernelInstance", L"Post-deleted file.");
 		}
 
 		return status;
@@ -654,6 +682,7 @@ namespace winrt::StarlightGUI::implementation {
 					DeleteFileW(entry.path().wstring().c_str());
 				}
 			}
+			LOG_INFO(L"KernelInstance", L"Post-deleted directory.");
 			return RemoveDirectoryW(path.c_str());
 		}
 	}
@@ -675,6 +704,7 @@ namespace winrt::StarlightGUI::implementation {
 					_DeleteFile(entry.path().wstring());
 				}
 			}
+			LOG_INFO(L"KernelInstance", L"Post-deleted directory.");
 			return RemoveDirectoryW(path.c_str());
 		}
 	}
@@ -696,6 +726,7 @@ namespace winrt::StarlightGUI::implementation {
 					MurderFile(entry.path().wstring());
 				}
 			}
+			LOG_INFO(L"KernelInstance", L"Post-deleted directory.");
 			return RemoveDirectoryW(path.c_str());
 		}
 	}
@@ -710,6 +741,7 @@ namespace winrt::StarlightGUI::implementation {
 		UNICODE_STRING filePath[MAX_PATH];
 		RtlInitUnicodeString(filePath, targetPath);
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [path=%s]", IOCTL_LOCK_FILE_UNICODE, __WFUNCTION__.c_str(), path.c_str());
 		return DeviceIoControl(driverDevice, IOCTL_LOCK_FILE_UNICODE, filePath, sizeof(filePath), NULL, 0, 0, NULL);
 	}
 
@@ -735,142 +767,171 @@ namespace winrt::StarlightGUI::implementation {
 		RtlInitUnicodeString(input.FileName, name.c_str());
 		RtlInitUnicodeString(input.TargetFilePath, toPath);
 
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [from=%s, to=%s, name=%s]", IOCTL_NTFS_COPY_FILE, __WFUNCTION__.c_str(), from.c_str(), to.c_str(), name.c_str());
 		return DeviceIoControl(driverDevice, IOCTL_NTFS_COPY_FILE, &input, sizeof(INPUT), NULL, sizeof(ULONG), 0, 0);
 	}
 
 	BOOL KernelInstance::EnableCreateProcess() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_UNPROHIBIT_CREATEPROCESS, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_CREATEPROCESS, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableCreateProcess() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_PROHIBIT_CREATEPROCESS, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_CREATEPROCESS, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::EnableCreateFile() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_UNPROHIBIT_CREATEFILE, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_CREATEFILE, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableCreateFile() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_PROHIBIT_CREATEFILE, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_CREATEFILE, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::EnableLoadDriver() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_UNPROHIBIT_LOADDRIVER, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_LOADDRIVER, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableLoadDriver() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_PROHIBIT_LOADDRIVER, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_LOADDRIVER, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::EnableUnloadDriver() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_UNPROHIBIT_UNLOADDRIVER, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_UNLOADDRIVER, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableUnloadDriver() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_PROHIBIT_UNLOADDRIVER, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_UNLOADDRIVER, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::EnableModifyRegistry() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_UNPROHIBIT_MODIFY_REGISTRY, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_UNPROHIBIT_MODIFY_REGISTRY, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableModifyRegistry() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_PROHIBIT_MODIFY_REGISTRY, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_PROHIBIT_MODIFY_REGISTRY, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::ProtectDisk() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_PROTECT_DISK, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_PROTECT_DISK, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::UnprotectDisk() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_UNPROTECT_DISK, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_UNPROTECT_DISK, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::EnableObCallback() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENABLE_OBCALLBACK, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_ENABLE_OBCALLBACK, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableObCallback() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_DISABLE_OBCALLBACK, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_DISABLE_OBCALLBACK, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::EnableDSE() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENABLE_DSE, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_ENABLE_DSE, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableDSE() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_DISABLE_DSE, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_DISABLE_DSE, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::EnableCmpCallback() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENABLE_CMPCALLBACK, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_ENABLE_CMPCALLBACK, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableCmpCallback() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_DISABLE_CMPCALLBACK, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_DISABLE_CMPCALLBACK, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::EnableLKD() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_ENABLE_LKD, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_ENABLE_LKD, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::DisableLKD() noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_DISABLE_LKD, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_DISABLE_LKD, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
-	BOOL KernelInstance::DisablePatchGuard(ULONG type) noexcept {
+	BOOL KernelInstance::DisablePatchGuard(int type) noexcept {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		if (type == 0) {
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [type=%d]", IOCTL_DISABLE_PATCHGUARD_EFI, __WFUNCTION__, type);
 			return DeviceIoControl(driverDevice, IOCTL_DISABLE_PATCHGUARD_EFI, NULL, 0, NULL, 0, NULL, NULL);
 		}
 		else if (type == 1) {
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [type=%d]", IOCTL_DISABLE_PATCHGUARD_BIOS, __WFUNCTION__, type);
 			return DeviceIoControl(driverDevice, IOCTL_DISABLE_PATCHGUARD_BIOS, NULL, 0, NULL, 0, NULL, NULL);
 		}
 		else if (type == 2) {
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [type=%d]", IOCTL_DISABLE_PATCHGUARD_DYNAMIC, __WFUNCTION__, type);
 			return DeviceIoControl(driverDevice, IOCTL_DISABLE_PATCHGUARD_DYNAMIC, NULL, 0, NULL, 0, NULL, NULL);
 		}
+		return FALSE;
 	}
 
 	BOOL KernelInstance::Shutdown() {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_SHUTDOWN, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_SHUTDOWN, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::Reboot() {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_REBOOT, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_REBOOT, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
 	BOOL KernelInstance::RebootForce() {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
+		LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: []", IOCTL_FORCE_REBOOT, __WFUNCTION__);
 		return DeviceIoControl(driverDevice, IOCTL_FORCE_REBOOT, NULL, 0, NULL, 0, NULL, NULL);
 	}
 
-	BOOL KernelInstance::BlueScreen(ULONG color) {
+	BOOL KernelInstance::BlueScreen(int color) {
 		if (!GetDriverDevice() || !IsRunningAsAdmin()) return FALSE;
 
 		if (color == -1) {
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [color=-1]", IOCTL_BLUESCREEN, __WFUNCTION__, color);
 			return DeviceIoControl(driverDevice, IOCTL_BLUESCREEN, NULL, 0, NULL, 0, NULL, NULL);
 		}
 		else {
@@ -879,6 +940,7 @@ namespace winrt::StarlightGUI::implementation {
 			};
 			INPUT input = { color };
 
+			LOG_WARNING(L"KernelInstance", L"Calling 0x%x from \"%s\", parameters: [color=%d]", IOCTL_CRASH_SYSTEM_SET_COLOR, __WFUNCTION__, color);
 			return DeviceIoControl(driverDevice, IOCTL_CRASH_SYSTEM_SET_COLOR, &input, sizeof(input), NULL, 0, NULL, NULL);
 		}
 	}
@@ -905,6 +967,7 @@ namespace winrt::StarlightGUI::implementation {
 
 	BOOL KernelInstance::GetDriverDevice2() noexcept {
 		if (driverDevice2 != NULL) return TRUE;
+		if (!DriverUtils::LoadKernelDriver(astralPath.c_str(), unused)) return FALSE;
 
 		HANDLE device = CreateFile(L"\\\\.\\AstralX", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -915,16 +978,33 @@ namespace winrt::StarlightGUI::implementation {
 	}
 
 	bool KernelInstance::IsRunningAsAdmin() noexcept {
-		HANDLE hToken = nullptr;
-		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
-			return false;
+		static int flag = 0;
+		if (flag == 0) {
+			HANDLE hToken = nullptr;
+			if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+				return false;
+			}
+
+			TOKEN_ELEVATION elevation{};
+			DWORD dwSize;
+			bool result = GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize);
+			CloseHandle(hToken);
+
+			result = result && elevation.TokenIsElevated;
+
+			if (result) {
+				LOG_WARNING(L"KernelInstance", L"Admin privilege detected, enabling driver loading stage and related features.");
+				flag = 1;
+			}
+			else {
+				LOG_WARNING(L"KernelInstance", L"Admin privilege undetected, disabling driver loading stage and related features.");
+				flag = 2;
+			}
+
+			return result;
 		}
-
-		TOKEN_ELEVATION elevation{};
-		DWORD dwSize;
-		bool result = GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize);
-		CloseHandle(hToken);
-
-		return result && elevation.TokenIsElevated;
+		else {
+			return flag == 1;
+		}
 	}
 }

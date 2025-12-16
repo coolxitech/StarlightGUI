@@ -49,6 +49,9 @@ namespace winrt::StarlightGUI::implementation{
 			co_return;
 		}
 
+		ULONG color = BSODColorComboBox().SelectedIndex() - 1;
+		ULONG type = PGTypeComboBox().SelectedIndex();
+
 		co_await winrt::resume_background();
 
 		BOOL result = FALSE;
@@ -114,14 +117,13 @@ namespace winrt::StarlightGUI::implementation{
 			result = KernelInstance::DisableLKD();
 		}
 		else if (tag == L"BSOD") {
-			ULONG color = BSODColorComboBox().SelectedIndex() - 1;
 			result = KernelInstance::BlueScreen(color);
 		}
 		else if (tag == L"PatchGuard") {
-			ULONG type = PGTypeComboBox().SelectedIndex();
 			result = KernelInstance::DisablePatchGuard(type);
 		}
 		else {
+			co_await wil::resume_foreground(DispatcherQueue());
 			CreateInfoBarAndDisplay(L"´íÎó", L"Î´Öª²Ù×÷£¡", InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
 			co_return;
 		}

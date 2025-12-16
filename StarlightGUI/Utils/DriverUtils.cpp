@@ -24,6 +24,7 @@ namespace winrt::StarlightGUI::implementation {
 			}
 
 			if (serviceStatus.dwCurrentState == SERVICE_STOPPED) {
+				LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
 				if (!StartService(hService, 0, nullptr)) {
 					CloseServiceHandle(hService);
 					CloseServiceHandle(hSCM);
@@ -51,6 +52,7 @@ namespace winrt::StarlightGUI::implementation {
 			}
 
 			// Start the service
+			LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
 			if (!StartService(hService, 0, nullptr)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);
@@ -88,6 +90,7 @@ namespace winrt::StarlightGUI::implementation {
 			}
 
 			if (serviceStatus.dwCurrentState == SERVICE_STOPPED) {
+				LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
 				if (!StartService(hService, 0, nullptr)) {
 					CloseServiceHandle(hService);
 					CloseServiceHandle(hSCM);
@@ -115,6 +118,7 @@ namespace winrt::StarlightGUI::implementation {
 			}
 
 			// Start the service
+			LOG_INFO(L"DriverUtils", L"Loading driver: %s", kernelPath);
 			if (!StartService(hService, 0, nullptr)) {
 				CloseServiceHandle(hService);
 				CloseServiceHandle(hSCM);

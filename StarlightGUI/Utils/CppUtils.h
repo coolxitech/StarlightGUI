@@ -18,4 +18,6 @@ namespace winrt::StarlightGUI::implementation {
     std::wstring ULongToHexString(ULONG64 value, int w, bool uppercase, bool prefix);
 
     std::wstring FormatMemorySize(uint64_t bytes);
+
+    std::wstring ExtractFunctionName(const std::string& old);
 }

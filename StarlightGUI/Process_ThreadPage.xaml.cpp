@@ -47,6 +47,8 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             LoadThreadList();
             });
+
+        LOG_INFO(L"Process_ThreadPage", L"Process_ThreadPage initialized.");
     }
 
     void Process_ThreadPage::ThreadListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -213,6 +215,8 @@ namespace winrt::StarlightGUI::implementation
     {
         if (!processForInfoWindow) co_return;
 
+        LOG_INFO(__WFUNCTION__, L"Loading thread list... (pid=%d)", processForInfoWindow.Id());
+
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -222,15 +226,11 @@ namespace winrt::StarlightGUI::implementation
         co_await winrt::resume_background();
 
         std::vector<winrt::StarlightGUI::ThreadInfo> threads;
-        threads.reserve(50);
+        threads.reserve(100);
 
         // 获取线程列表
-        try {
-            KernelInstance::EnumProcessThread(processForInfoWindow.EProcessULong(), threads);
-        }
-        catch (...) {
-
-        }
+        KernelInstance::EnumProcessThread(processForInfoWindow.EProcessULong(), threads);
+        LOG_INFO(__WFUNCTION__, L"Enumerated threads, %d entry(s).", threads.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
 
@@ -251,6 +251,8 @@ namespace winrt::StarlightGUI::implementation
         countText << L"共 " << m_threadList.Size() << L" 个线程 (" << duration.count() << " ms)";
         ThreadCountText().Text(countText.str());
         LoadingRing().IsActive(false);
+
+        LOG_INFO(__WFUNCTION__, L"Loaded thread list, %d entry(s) in total.", m_threadList.Size());
     }
 
 

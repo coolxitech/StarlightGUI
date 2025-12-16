@@ -45,6 +45,8 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             LoadHandleList();
             });
+
+        LOG_INFO(L"Process_HandlePage", L"Process_HandlePage initialized.");
     }
 
     void Process_HandlePage::HandleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -108,6 +110,8 @@ namespace winrt::StarlightGUI::implementation
             co_return;
         }
 
+        LOG_INFO(__WFUNCTION__, L"Loading handle list... (pid=%d)", processForInfoWindow.Id());
+
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -120,11 +124,8 @@ namespace winrt::StarlightGUI::implementation
         handles.reserve(500);
 
         // 获取句柄列表
-        try {
-            KernelInstance::EnumProcessHandle(processForInfoWindow.Id(), handles);
-        } catch (...) {
-
-        }
+        KernelInstance::EnumProcessHandle(processForInfoWindow.Id(), handles);
+        LOG_INFO(__WFUNCTION__, L"Enumerated handles, %d entry(s).", handles.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
 
@@ -145,6 +146,8 @@ namespace winrt::StarlightGUI::implementation
         countText << L"共 " << m_handleList.Size() << L" 个句柄 (" << duration.count() << " ms)";
         HandleCountText().Text(countText.str());
         LoadingRing().IsActive(false);
+
+        LOG_INFO(__WFUNCTION__, L"Loaded handle list, %d entry(s) in total.", m_handleList.Size());
     }
 
     template <typename T>

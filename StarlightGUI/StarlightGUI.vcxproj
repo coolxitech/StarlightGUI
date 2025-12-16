@@ -101,7 +101,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -109,6 +109,7 @@
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Sync</ExceptionHandling>
+      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SDLCheck>
     </ClCompile>
     <Link>
       <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">RequireAdministrator</UACExecutionLevel>
@@ -153,6 +154,7 @@
     <Manifest Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConsoleLogger.h" />
     <ClInclude Include="CopyFileDialog.xaml.h">
       <DependentUpon>CopyFileDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -245,7 +247,6 @@
     <ClInclude Include="Utils\MokuaiInfo.h" />
     <ClInclude Include="Utils\ProcessInfo.h" />
     <ClInclude Include="Utils\TaskUtils.h" />
-    <ClInclude Include="Utils\Terminator.h" />
     <ClInclude Include="Utils\ThreadInfo.h" />
     <ClInclude Include="Utils\Utils.h" />
   </ItemGroup>
@@ -308,6 +309,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ConsoleLogger.cpp" />
     <ClCompile Include="CopyFileDialog.xaml.cpp">
       <DependentUpon>CopyFileDialog.xaml</DependentUpon>
       <SubType>Code</SubType>

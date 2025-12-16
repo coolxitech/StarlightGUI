@@ -130,6 +130,9 @@
     <ClCompile Include="Utils\FileInfo.cpp">
       <Filter>Utils\Types</Filter>
     </ClCompile>
+    <ClCompile Include="ConsoleLogger.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -140,9 +143,6 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Elevator.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Terminator.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Utils.h">
@@ -180,6 +180,9 @@
     </ClInclude>
     <ClInclude Include="Utils\FileInfo.h">
       <Filter>Utils\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleLogger.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -369,7 +372,9 @@
     <Image Include="Assets\HO-COOH.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Assets\MuLin.png" />
+    <Image Include="Assets\MuLin.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

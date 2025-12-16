@@ -54,8 +54,27 @@
 #include <Utils/Elevator.h>
 #include <Utils/Config.h>
 #include <Utils/CppUtils.h>
-#include <Utils/Terminator.h>
 
-static inline winrt::hstring kernelPath = L"";
-static inline winrt::hstring astralPath = L"";
-static inline std::wstring unused = L"";
+extern winrt::hstring kernelPath;
+extern winrt::hstring astralPath;
+extern std::wstring unused;
+
+#include <ConsoleLogger.h>
+
+#define __WFUNCTION__ ExtractFunctionName(__FUNCTION__)
+
+#define LOG_DEBUG(source, message, ...)    ConsoleLogger::GetInstance().Debug(source, message, __VA_ARGS__)
+#define LOG_INFO(source, message, ...)     ConsoleLogger::GetInstance().Info(source, message, __VA_ARGS__)
+#define LOG_WARNING(source, message, ...)  ConsoleLogger::GetInstance().Warning(source, message, __VA_ARGS__)
+#define LOG_ERROR(source, message, ...)    ConsoleLogger::GetInstance().Error(source, message, __VA_ARGS__)
+#define LOG_CRITICAL(source, message, ...) ConsoleLogger::GetInstance().Critical(source, message, __VA_ARGS__)
+#define LOG_SUCCESS(source, message, ...)  ConsoleLogger::GetInstance().Success(source, message, __VA_ARGS__)
+
+#define LOGGER_INIT()			ConsoleLogger::GetInstance().Initialize()
+#define LOGGER_TOGGLE()			ConsoleLogger::GetInstance().ToggleConsole()
+#define LOGGER_OPEN()			ConsoleLogger::GetInstance().OpenConsole()
+#define LOGGER_CLOSE()			ConsoleLogger::GetInstance().CloseConsole()
+#define LOGGER_SHUTDOWN()		ConsoleLogger::GetInstance().ShutdownConsole()
+#define LOGGER_CLEAR()			ConsoleLogger::GetInstance().ClearConsole()
+#define LOGGER_SET_TITLE(title) ConsoleLogger::GetInstance().SetTitle(title)
+#define LOGGER_SET_LEVEL(level) ConsoleLogger::GetInstance().SetMinLogLevel(level)

@@ -159,6 +159,18 @@
                 </essential:SettingsCard.HeaderIcon>
                 <ToggleSwitch x:Name="CheckUpdateButton" Toggled="CheckUpdateButton_Toggled" Margin="0,0,-80,0"/>
             </essential:SettingsCard>
+
+
+            <essential:SettingsCard Header="日志"
+                                    Description="打开日志窗口"
+                                    IsClickEnabled="True"
+                                    IsActionIconVisible="False"
+                                    Margin="0,0,0,10">
+                <essential:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xe70b;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
+                </essential:SettingsCard.HeaderIcon>
+                <Button x:Name="LogButton" Content="打开" Click="LogButton_Click"/>
+            </essential:SettingsCard>
         </StackPanel>
     </ScrollViewer>
 </Page>

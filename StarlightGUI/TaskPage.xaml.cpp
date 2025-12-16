@@ -72,6 +72,8 @@ namespace winrt::StarlightGUI::implementation
             reloadTimer.Stop();
             ReleaseDC(NULL, hdc);
             });
+
+        LOG_INFO(L"TaskPage", L"TaskPage initialized.");
     }
 
     void TaskPage::ProcessListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -451,9 +453,9 @@ namespace winrt::StarlightGUI::implementation
         if (m_isLoadingProcesses) {
             co_return;
         }
-
         m_isLoadingProcesses = true;
 
+        LOG_INFO(__WFUNCTION__, L"Loading process list...");
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -470,6 +472,7 @@ namespace winrt::StarlightGUI::implementation
         std::map<DWORD, hstring> processCpuTable;
 
         if (std::chrono::duration_cast<std::chrono::seconds>(start - lastRefresh).count() >= 1 || force) {
+            LOG_INFO(__WFUNCTION__, L"Time has passed over 1 sec, so we will do a full refresh.");
             processes.reserve(200);
 
             HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -490,24 +493,24 @@ namespace winrt::StarlightGUI::implementation
 
             CloseHandle(hSnapshot);
 
+            LOG_INFO(__WFUNCTION__, L"Enumerated processes (user mode), %d entry(s).", processes.size());
+
             processIndexMap.clear();
             for (int i = 0; i < processes.size(); i++) {
                 auto& process = processes.at(i);
                 processIndexMap[process.Id()] = i;
             }
 
-            try {
-                KernelInstance::EnumProcess(processIndexMap, processes);
-            }
-            catch (...) {
+            KernelInstance::EnumProcess(processIndexMap, processes);
 
-            }
+            LOG_INFO(__WFUNCTION__, L"Enumerated processes (kernel mode), %d entry(s).", processes.size());
 
             fullRecordedProcesses = processes;
 
             lastRefresh = std::chrono::steady_clock::now();
         }
         else {
+            LOG_INFO(__WFUNCTION__, L"Using cached list.");
             processes = fullRecordedProcesses;
         }
 
@@ -560,6 +563,7 @@ namespace winrt::StarlightGUI::implementation
             ProcessListView().SelectedIndex(selectedIndex);
         }
 
+        LOG_INFO(__WFUNCTION__, L"Loaded process list, %d entry(s) in total.", m_processList.Size());
         m_isLoadingProcesses = false;
     }
 
@@ -672,9 +676,17 @@ namespace winrt::StarlightGUI::implementation
 
                 // 将图标缓存到 map 中
                 iconCache[process.ExecutablePath()] = writeableBitmap.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>();
+                process.Icon(writeableBitmap);
             }
         }
-        process.Icon(iconCache[process.ExecutablePath()].value());
+        else {
+            if (iconCache[process.ExecutablePath()].has_value()) {
+                process.Icon(iconCache[process.ExecutablePath()].value());
+            }
+            else {
+                LOG_WARNING(__WFUNCTION__, L"File icon path (%s) does not have a value!", process.ExecutablePath().c_str());
+            }
+        }
 
         co_return;
     }

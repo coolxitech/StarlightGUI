@@ -107,4 +107,24 @@ namespace winrt::StarlightGUI::implementation {
 
         return ss.str();
     }
+
+    std::wstring ExtractFunctionName(const std::string& old) {
+        std::wstring pretty(old.begin(), old.end());
+        size_t firstNS = pretty.find(L"::");
+        if (firstNS == std::string::npos) {
+            return pretty;
+        }
+
+        size_t lastScope = pretty.rfind(L"::");
+        if (lastScope == firstNS) {
+            return pretty.substr(firstNS + 2);
+        }
+
+        size_t lastSecScope = pretty.rfind(L"::", lastScope - 2);
+        if (lastSecScope != std::string::npos) {
+            return pretty.substr(lastSecScope + 2);
+        }
+
+        return pretty;
+    }
 }

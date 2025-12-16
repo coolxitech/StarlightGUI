@@ -45,6 +45,8 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             LoadKCTList();
             });
+
+        LOG_INFO(L"Process_KCTPage", L"Process_KCTPage initialized.");
     }
 
     void Process_KCTPage::KCTListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -119,6 +121,8 @@ namespace winrt::StarlightGUI::implementation
             co_return;
         }
 
+        LOG_INFO(__WFUNCTION__, L"Loading kernel callback table list... (pid=%d)", processForInfoWindow.Id());
+
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -130,13 +134,9 @@ namespace winrt::StarlightGUI::implementation
         std::vector<winrt::StarlightGUI::KCTInfo> kcts;
         kcts.reserve(500);
 
-        // 获取句柄列表
-        try {
-            KernelInstance::EnumProcessKernelCallbackTable(processForInfoWindow.EProcessULong(), kcts);
-        }
-        catch (...) {
-
-        }
+        // 获取回调表
+        KernelInstance::EnumProcessKernelCallbackTable(processForInfoWindow.EProcessULong(), kcts);
+        LOG_INFO(__WFUNCTION__, L"Enumerated kernel callback tables, %d entry(s).", kcts.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
 
@@ -160,6 +160,8 @@ namespace winrt::StarlightGUI::implementation
         countText << L"共 " << m_kctList.Size() << L" 个内核回调表记录 (" << duration.count() << " ms)";
         KCTCountText().Text(countText.str());
         LoadingRing().IsActive(false);
+
+        LOG_INFO(__WFUNCTION__, L"Loaded kernel callback table list, %d entry(s) in total.", m_kctList.Size());
     }
 
     template <typename T>

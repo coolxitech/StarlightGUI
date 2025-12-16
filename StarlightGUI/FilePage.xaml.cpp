@@ -16,7 +16,7 @@ using namespace Microsoft::UI::Xaml;
 namespace winrt::StarlightGUI::implementation
 {
 	hstring currentDirectory = L"C:\\";
-    static std::unordered_map<hstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
+    static std::unordered_map<std::wstring, std::optional<winrt::Microsoft::UI::Xaml::Media::ImageSource>> iconCache;
     static HDC hdc{ nullptr };
     static bool loaded;
 
@@ -31,7 +31,7 @@ namespace winrt::StarlightGUI::implementation
         m_scrollCheckTimer = winrt::Microsoft::UI::Xaml::DispatcherTimer();
         m_scrollCheckTimer.Interval(std::chrono::milliseconds(100));
         m_scrollCheckTimer.Tick([this](auto&&, auto&&) {
-            CheckAndLoadMoreItems();
+            if (!m_isLoadingFiles) CheckAndLoadMoreItems();
             });
 
         this->Loaded([this](auto&&, auto&&) {
@@ -46,6 +46,8 @@ namespace winrt::StarlightGUI::implementation
             }
             ReleaseDC(NULL, hdc);
             });
+
+        LOG_INFO(L"FilePage", L"FilePage initialized.");
     }
 
 	void FilePage::FileListView_RightTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -223,7 +225,7 @@ namespace winrt::StarlightGUI::implementation
 
         try {
             size_t start = m_loadedCount;
-            size_t end = (start + 50) < m_allFiles.size() ? (start + 50) : m_allFiles.size();
+            size_t end = (start + 100) < m_allFiles.size() ? (start + 100) : m_allFiles.size();
 
             co_await wil::resume_foreground(DispatcherQueue());
 
@@ -239,8 +241,11 @@ namespace winrt::StarlightGUI::implementation
 
             m_loadedCount = end;
             m_hasMoreFiles = (m_loadedCount < m_allFiles.size());
+
+            LOG_INFO(__WFUNCTION__, L"Loading file list range [%d,%d)", start, end);
         }
         catch (...) {
+            LOG_ERROR(__WFUNCTION__, L"Error while loading file list!");
         }
 
         m_isLoadingMore = false;
@@ -251,6 +256,8 @@ namespace winrt::StarlightGUI::implementation
         if (m_isLoadingFiles) co_return;
         m_isLoadingFiles = true;
 
+        LOG_INFO(__WFUNCTION__, L"Loading file list...");
+
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::steady_clock::now();
@@ -260,6 +267,7 @@ namespace winrt::StarlightGUI::implementation
         std::wstring path = FixBackSplash(currentDirectory);
         currentDirectory = path;
         PathBox().Text(currentDirectory);
+        LOG_INFO(__WFUNCTION__, L"Path = %s", path.c_str());
 
         // 简单判断根目录
         PreviousButton().IsEnabled(path.length() > 3);
@@ -268,16 +276,18 @@ namespace winrt::StarlightGUI::implementation
 
         co_await winrt::resume_background();
 
-        try {
-            if (KernelInstance::IsRunningAsAdmin()) KernelInstance::QueryFile(path, m_allFiles);
-            else QueryFile(path, m_allFiles);
+        if (KernelInstance::IsRunningAsAdmin()) {
+            KernelInstance::QueryFile(path, m_allFiles);
+            LOG_INFO(__WFUNCTION__, L"Enumerated files (kernel mode), %d entry(s).", m_allFiles.size());
         }
-        catch (...) {}      
+        else {
+            QueryFile(path, m_allFiles);
+            LOG_INFO(__WFUNCTION__, L"Enumerated files (user mode), %d entry(s).", m_allFiles.size());
+        }
 
 
         for (const auto& file : m_allFiles) {
             co_await GetFileInfoAsync(file);
-
             file.Path(FixBackSplash(file.Path()));
         }
 
@@ -302,6 +312,8 @@ namespace winrt::StarlightGUI::implementation
         countText << L"共 " << m_allFiles.size() << L" 个文件 (" << duration << " ms)";
         FileCountText().Text(countText.str());
         LoadingRing().IsActive(false);
+
+        LOG_INFO(__WFUNCTION__, L"Loaded file list, %d entry(s) in total.", m_allFiles.size());
 
         // 立刻加载一次
         LoadMoreFiles();
@@ -352,9 +364,10 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::Windows::Foundation::IAsyncAction FilePage::GetFileIconAsync(const winrt::StarlightGUI::FileInfo& file)
     {
-        if (iconCache.find(file.Path()) == iconCache.end()) {
+        std::wstring filePath = file.Path().c_str();
+        if (iconCache.find(filePath) == iconCache.end()) {
             SHFILEINFO shfi;
-            if (!SHGetFileInfoW(file.Path().c_str(), 0, &shfi, sizeof(SHFILEINFO), SHGFI_ICON)) {
+            if (!SHGetFileInfoW(filePath.c_str(), 0, &shfi, sizeof(SHFILEINFO), SHGFI_ICON)) {
                 SHGetFileInfoW(L"", 0, &shfi, sizeof(SHFILEINFO), SHGFI_ICON);
             }
             ICONINFO iconInfo;
@@ -390,10 +403,10 @@ namespace winrt::StarlightGUI::implementation
                 DestroyIcon(shfi.hIcon);
 
                 // 将图标缓存到 map 中
-                iconCache[file.Path()] = writeableBitmap.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>();
+                iconCache[filePath] = writeableBitmap.as<winrt::Microsoft::UI::Xaml::Media::ImageSource>();
             }
         }
-        file.Icon(iconCache[file.Path()].value());
+        file.Icon(iconCache[filePath].value());
 
         co_return;
     }

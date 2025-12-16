@@ -32,7 +32,6 @@ namespace winrt::StarlightGUI::implementation
 
         loaded = false;
 
-        // idk why it cant understand the fucking boolean
         enum_file_mode = ReadConfig("enum_file_mode", "ENUM_FILE_NTAPI");
         background_type = ReadConfig("background_type", "Static");
         mica_type = ReadConfig("mica_type", "BaseAlt");
@@ -304,4 +303,11 @@ namespace winrt::StarlightGUI::implementation
 
         g_mainWindowInstance->LoadBackground();
     }
+
+    winrt::Windows::Foundation::IAsyncAction SettingsPage::LogButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+    {
+        LOGGER_TOGGLE();
+        co_return;
+    }
+
 }

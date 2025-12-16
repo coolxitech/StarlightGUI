@@ -45,6 +45,8 @@ namespace winrt::StarlightGUI::implementation
         this->Loaded([this](auto&&, auto&&) {
             LoadModuleList();
             });
+
+        LOG_INFO(L"Process_ModulePage", L"Process_ModulePage initialized.");
     }
 
     void Process_ModulePage::ModuleListView_RightTapped(IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::RightTappedRoutedEventArgs const& e)
@@ -130,6 +132,8 @@ namespace winrt::StarlightGUI::implementation
             co_return;
         }
 
+        LOG_INFO(__WFUNCTION__, L"Loading module list... (pid=%d)", processForInfoWindow.Id());
+
         LoadingRing().IsActive(true);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -142,12 +146,8 @@ namespace winrt::StarlightGUI::implementation
         modules.reserve(500);
 
         // 获取句柄列表
-        try {
-            KernelInstance::EnumProcessModule(processForInfoWindow.EProcessULong(), modules);
-        }
-        catch (...) {
-
-        }
+        KernelInstance::EnumProcessModule(processForInfoWindow.EProcessULong(), modules);
+        LOG_INFO(__WFUNCTION__, L"Enumerated modules, %d entry(s).", modules.size());
 
         co_await wil::resume_foreground(DispatcherQueue());
 
@@ -171,6 +171,8 @@ namespace winrt::StarlightGUI::implementation
         countText << L"共 " << m_moduleList.Size() << L" 个模块 (" << duration.count() << " ms)";
         ModuleCountText().Text(countText.str());
         LoadingRing().IsActive(false);
+
+        LOG_INFO(__WFUNCTION__, L"Loaded module list, %d entry(s) in total.", m_moduleList.Size());
     }
 
     template <typename T>

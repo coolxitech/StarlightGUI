@@ -67,8 +67,11 @@ namespace winrt::StarlightGUI::implementation
                     CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
                 }
                 loaded = true;
+                
                 });
         }
+
+        LOG_INFO(L"HomePage", L"HomePage initialized.");
     }
 
     void HomePage::SetGreetingText()
@@ -135,6 +138,8 @@ namespace winrt::StarlightGUI::implementation
                         BitmapImage bitmapImage;
                         co_await bitmapImage.SetSourceAsync(stream);
                         avatar = bitmapImage;
+
+                        LOG_INFO(__WFUNCTION__, L"Got user account picture.");
                     }
                 }
 
@@ -145,6 +150,7 @@ namespace winrt::StarlightGUI::implementation
                 if (displayName != nullptr && !displayName.as<winrt::hstring>().empty())
                 {
                     username = displayName.as<winrt::hstring>();
+                    LOG_INFO(__WFUNCTION__, L"Got user account name.");
                 }
             }
         }
@@ -168,17 +174,21 @@ namespace winrt::StarlightGUI::implementation
             HttpClient client;
             Uri uri(L"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=i&c=k");
 
+            LOG_INFO(__WFUNCTION__, L"Sending hitokoto request...");
             hstring result = co_await client.GetStringAsync(uri);
 
             // Read json object
             auto json = Windows::Data::Json::JsonObject::Parse(result);
             hitokoto = L"“" + json.GetNamedString(L"hitokoto") + L"”";
+
+            LOG_INFO(__WFUNCTION__, L"Hitokoto result: %s", hitokoto.c_str());
         }
 
         if (auto strong_this = weak_this.get()) {
             co_await wil::resume_foreground(DispatcherQueue());
             HitokotoText().Text(hitokoto);
         }
+
         co_return;
     }
 
@@ -196,6 +206,7 @@ namespace winrt::StarlightGUI::implementation
         HttpClient client;
         Uri uri(L"https://pastebin.com/raw/kz5qViYF");
 
+        LOG_INFO(L"Updater", L"Sending update check request...");
         hstring result = co_await client.GetStringAsync(uri);
 
         auto json = Windows::Data::Json::JsonObject::Parse(result);
@@ -204,13 +215,18 @@ namespace winrt::StarlightGUI::implementation
         if (auto strong_this = weak_this.get()) {
             co_await wil::resume_foreground(DispatcherQueue());
 
+            LOG_INFO(L"Updater", L"Current: %d, Latest: %d", currentBuildNumber, latestBuildNumber);
+
             if (latestBuildNumber == 0) {
+                LOG_WARNING(L"Updater", L"Latest = 0, check failed.");
                 CreateInfoBarAndDisplay(L"警告", L"检查更新失败！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
             else if (latestBuildNumber == currentBuildNumber) {
+                LOG_INFO(L"Updater", L"Latest = current, we are on the latest version.");
                 CreateInfoBarAndDisplay(L"信息", L"你正在使用最新版本的 Starlight GUI！", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
             }
             else if (latestBuildNumber > currentBuildNumber) {
+                LOG_INFO(L"Updater", L"Latest > current, new version avaliable. Calling up update dialog.");
                 auto dialog = winrt::make<winrt::StarlightGUI::implementation::UpdateDialog>();
                 dialog.LatestVersion(json.GetNamedString(L"version"));
                 dialog.XamlRoot(this->XamlRoot());
@@ -230,6 +246,7 @@ namespace winrt::StarlightGUI::implementation
                 }
             }
             else if (latestBuildNumber < currentBuildNumber) {
+                LOG_INFO(L"DriverUtils", L"Latest < current, maybe we are on a dev environment.", kernelPath.c_str());
                 CreateInfoBarAndDisplay(L"信息", L"你正在使用 Starlight GUI 的开发版本！", InfoBarSeverity::Informational, XamlRoot(), InfoBarPanel());
             }
         }
@@ -285,6 +302,7 @@ namespace winrt::StarlightGUI::implementation
         auto strong = get_strong();
 
         g_mainWindowInstance->RootNavigation().IsEnabled(false);
+        LOG_INFO(L"DriverUtils", L"Loading necessary drivers...");
         if (kernelPath.empty() || astralPath.empty()) {
             try {
                 co_await winrt::resume_background();
@@ -297,18 +315,24 @@ namespace winrt::StarlightGUI::implementation
                 if (kernelFile) {
                     kernelPath = kernelFile.Path();
 
+                    LOG_INFO(L"DriverUtils", L"Kernel.sys path [%s], load it.", kernelPath.c_str());
                     DriverUtils::LoadKernelDriver(kernelPath.c_str(), unused);
 
                     if (astralFile) {
                         astralPath = astralFile.Path();
+
+                        LOG_INFO(L"DriverUtils", L"AstralX.sys path [%s], load it.", astralPath.c_str());
                         DriverUtils::LoadDriver(astralPath.c_str(), L"AstralX", unused);
                     }
                 }
 
+                LOG_SUCCESS(L"DriverUtils", L"Loaded successfully.", kernelPath.c_str());
                 co_await wil::resume_foreground(DispatcherQueue());
                 CreateInfoBarAndDisplay(L"成功", L"驱动加载成功！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
             }
-            catch (winrt::hresult_error) {
+            catch (winrt::hresult_error e) {
+                LOG_ERROR(L"DriverUtils", L"Error while loading drivers!", kernelPath.c_str());
+                LOG_ERROR(L"DriverUtils", L"%s", e.message().c_str());
                 CreateInfoBarAndDisplay(L"警告", L"一个或多个驱动文件未找到或无法加载，部分功能可能不可用！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
             }
         }

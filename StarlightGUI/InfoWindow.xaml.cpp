@@ -43,6 +43,7 @@ namespace winrt::StarlightGUI::implementation
 
         this->ExtendsContentIntoTitleBar(true);
         this->SetTitleBar(AppTitleBar());
+        this->AppWindow().TitleBar().PreferredHeightOption(winrt::Microsoft::UI::Windowing::TitleBarHeightOption::Tall);
 
         // 外观
         LoadBackdrop();
@@ -97,14 +98,16 @@ namespace winrt::StarlightGUI::implementation
 
     winrt::fire_and_forget InfoWindow::LoadBackdrop()
     {
-        auto background_type = ReadConfig("background_type", "Static");
+        std::string background_type = ReadConfig("background_type", "Static");
+        std::string option = "*";
 
         if (background_type == "Mica") {
             CustomMicaBackdrop micaBackdrop = CustomMicaBackdrop();
+
             this->SystemBackdrop(micaBackdrop);
 
-            auto mica_type = ReadConfig("mica_type", "BaseAlt");
-            if (mica_type == "Base") {
+            option = ReadConfig("mica_type", "BaseAlt");
+            if (option == "Base") {
                 micaBackdrop.Kind(MicaKind::Base);
             }
             else {
@@ -113,13 +116,14 @@ namespace winrt::StarlightGUI::implementation
         }
         else if (background_type == "Acrylic") {
             CustomAcrylicBackdrop acrylicBackdrop = CustomAcrylicBackdrop();
+
             this->SystemBackdrop(acrylicBackdrop);
 
-            auto acrylic_type = ReadConfig("acrylic_type", "Default");
-            if (acrylic_type == "Base") {
+            option = ReadConfig("acrylic_type", "Default");
+            if (option == "Base") {
                 acrylicBackdrop.Kind(DesktopAcrylicKind::Base);
             }
-            else if (acrylic_type == "Thin") {
+            else if (option == "Thin") {
                 acrylicBackdrop.Kind(DesktopAcrylicKind::Thin);
             }
             else {
@@ -130,6 +134,8 @@ namespace winrt::StarlightGUI::implementation
         {
             this->SystemBackdrop(nullptr);
         }
+
+        LOG_INFO(L"InfoWindow", L"Loading backdrop async with options: [%s, %s]", std::wstring(background_type.begin(), background_type.end()).c_str(), std::wstring(option.begin(), option.end()).c_str());
         co_return;
     }
 
@@ -143,7 +149,7 @@ namespace winrt::StarlightGUI::implementation
             CloseHandle(hFile);
 
             try {
-                StorageFile file = co_await StorageFile::GetFileFromPathAsync(to_hstring(background_image.c_str()));
+                StorageFile file = co_await StorageFile::GetFileFromPathAsync(to_hstring(background_image));
 
                 if (file && file.IsAvailable() && (file.FileType() == L".png" || file.FileType() == L".jpg" || file.FileType() == L".bmp" || file.FileType() == L".jpeg")) {
                     ImageBrush brush;
@@ -152,13 +158,15 @@ namespace winrt::StarlightGUI::implementation
                     bitmapImage.SetSource(stream);
                     brush.ImageSource(bitmapImage);
 
-                    auto opacity = ReadConfig("image_opacity", 20);
-                    auto stretch = ReadConfig("image_stretch", "UniformToFill");
+                    int opacity = ReadConfig("image_opacity", 20);
+                    std::string stretch = ReadConfig("image_stretch", "UniformToFill");
 
                     brush.Stretch(stretch == "None" ? Stretch::None : stretch == "Uniform" ? Stretch::Uniform : stretch == "Fill" ? Stretch::Fill : Stretch::UniformToFill);
                     brush.Opacity(opacity / 100.0);
 
                     InfoWindowGrid().Background(brush);
+
+                    LOG_INFO(L"InfoWindow", L"Loading background async with options: [%s, %d, %s]", to_hstring(background_image).c_str(), opacity, to_hstring(stretch).c_str());
                 }
             }
             catch (hresult_error) {
@@ -166,6 +174,7 @@ namespace winrt::StarlightGUI::implementation
                 brush.Color(Colors::Transparent());
 
                 InfoWindowGrid().Background(brush);
+                LOG_ERROR(L"InfoWindow", L"Unable to load window backgroud! Applying transparent brush instead.");
             }
         }
         else {
@@ -173,13 +182,14 @@ namespace winrt::StarlightGUI::implementation
             brush.Color(Colors::Transparent());
 
             InfoWindowGrid().Background(brush);
+            LOG_ERROR(L"InfoWindow", L"Background file does not exist. Applying transparent brush instead.");
         }
         co_return;
     }
 
     winrt::fire_and_forget InfoWindow::LoadNavigation()
     {
-        auto navigation_style = ReadConfig("navigation_style", "LeftCompact");
+        std::string navigation_style = ReadConfig("navigation_style", "LeftCompact");
 
         if (navigation_style == "Left") {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::Left);
@@ -191,9 +201,10 @@ namespace winrt::StarlightGUI::implementation
         {
             RootNavigation().PaneDisplayMode(NavigationViewPaneDisplayMode::LeftCompact);
         }
+
+        LOG_INFO(L"InfoWindow", L"Loading navigation async with options: [%s]", to_hstring(navigation_style).c_str());
         co_return;
     }
-
     HWND InfoWindow::GetWindowHandle()
     {
         return globalHWND;
