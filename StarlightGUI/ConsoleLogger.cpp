@@ -40,17 +40,14 @@ ConsoleLogger::~ConsoleLogger() {
     m_queueCV.notify_all();
     m_fileQueueCV.notify_all();
 
-    // 等待控制台线程结束
     if (m_consoleThread.joinable()) {
         m_consoleThread.join();
     }
 
-    // 等待文件写入线程结束
     if (m_fileWriteThread.joinable()) {
         m_fileWriteThread.join();
     }
 
-    // 关闭文件
     {
         std::lock_guard<std::mutex> lock(m_fileMutex);
         if (m_logFile.is_open()) {
@@ -144,10 +141,8 @@ bool ConsoleLogger::Initialize() {
     HMENU hMenu = GetSystemMenu(m_hConsoleWnd, FALSE);
     EnableMenuItem(hMenu, SC_CLOSE, MF_GRAYED);
 
-    // 启动控制台线程
     m_consoleThread = std::thread(&ConsoleLogger::ConsoleThreadProc, this);
 
-    // 启动文件写入线程
     if (m_fileWriteEnabled) {
         m_fileWriteThread = std::thread(&ConsoleLogger::FileWriteThreadProc, this);
     }
@@ -166,7 +161,6 @@ void ConsoleLogger::FileWriteThreadProc() {
     while (!m_shutdown) {
         ProcessFileQueue();
 
-        // 使用条件变量等待新日志，而不是频繁轮询
         std::unique_lock<std::mutex> lock(m_fileQueueMutex);
         if (m_fileLogQueue.empty()) {
             m_fileQueueCV.wait_for(lock, std::chrono::milliseconds(100), [this]() {
@@ -176,7 +170,6 @@ void ConsoleLogger::FileWriteThreadProc() {
         lock.unlock();
     }
 
-    // 线程结束前处理剩余日志
     ProcessFileQueue();
 }
 
@@ -201,7 +194,6 @@ void ConsoleLogger::ProcessFileQueue() {
                 formatted = FormatLogEntry(entry);
             }
             catch (...) {
-                // 格式化失败，忽略继续处理下一条
                 queueCopy.pop();
                 continue;
             }
@@ -209,10 +201,10 @@ void ConsoleLogger::ProcessFileQueue() {
             if (m_logFile.is_open()) {
                 try {
                     m_logFile << formatted << L"\n";
-                    m_logFile.flush();  // 立即刷新缓冲区，确保日志及时写入
+                    m_logFile.flush();
                 }
                 catch (...) {
-                    // 写入失败，忽略继续处理下一条
+
                 }
             }
         }

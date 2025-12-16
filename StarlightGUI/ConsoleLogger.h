@@ -130,11 +130,11 @@ private:
     ConsoleLogger& operator=(const ConsoleLogger&) = delete;
 
     void ConsoleThreadProc();
-    void FileWriteThreadProc();  // 新增：文件写入线程
+    void FileWriteThreadProc();
     void ProcessLogQueue();
-    void ProcessFileQueue();     // 新增：处理文件写入队列
+    void ProcessFileQueue();
     void OutputToConsole(const LogEntry& entry);
-    bool InitializeLogFile();    // 新增：初始化日志文件
+    bool InitializeLogFile();
 
     WORD GetLevelColor(LogLevel level);
     void SetConsoleColor(WORD color);
@@ -142,24 +142,22 @@ private:
 
     std::wstring FormatTimestamp(const std::chrono::system_clock::time_point& time);
     std::wstring FormatLevel(LogLevel level);
-    std::wstring FormatLogEntry(const LogEntry& entry);  // 新增：格式化日志条目
+    std::wstring FormatLogEntry(const LogEntry& entry);
 
     std::atomic<bool> m_consoleOpen{ false };
     std::atomic<bool> m_initialized{ false };
     std::atomic<bool> m_shutdown{ false };
     std::atomic<LogLevel> m_minLogLevel{ LogLevel::DEBUG };
-    std::atomic<bool> m_fileWriteEnabled{ true };  // 新增：是否启用文件写入
+    std::atomic<bool> m_fileWriteEnabled{ true };
 
     HANDLE m_hConsoleOutput{ INVALID_HANDLE_VALUE };
     HANDLE m_hConsoleInput{ INVALID_HANDLE_VALUE };
     HWND m_hConsoleWnd{ nullptr };
 
-    // 控制台日志队列和同步
     std::mutex m_queueMutex;
     std::condition_variable m_queueCV;
     std::queue<LogEntry> m_logQueue;
 
-    // 文件写入队列和同步
     std::mutex m_fileQueueMutex;
     std::condition_variable m_fileQueueCV;
     std::queue<LogEntry> m_fileLogQueue;
@@ -168,13 +166,12 @@ private:
     std::vector<LogEntry> m_logHistory;
     size_t m_maxHistorySize{ 10000 };
 
-    // 文件写入相关
     std::wofstream m_logFile;
     std::wstring m_logFilePath;
-    std::mutex m_fileMutex;  // 文件操作互斥锁
+    std::mutex m_fileMutex;
 
     std::thread m_consoleThread;
-    std::thread m_fileWriteThread;  // 新增：文件写入线程
+    std::thread m_fileWriteThread;
 
     std::atomic<bool> m_showTimestamp{ true };
     std::atomic<bool> m_showLogLevel{ true };
