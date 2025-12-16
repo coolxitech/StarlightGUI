@@ -16,7 +16,7 @@
 
             <x:String x:Key="Version">v1.7.0</x:String>
             <x:Int32 x:Key="BuildNumber">10700</x:Int32>
-            <x:String x:Key="ReleaseDate">2025/12/14</x:String>
+            <x:String x:Key="ReleaseDate">2025/12/16</x:String>
             <x:String x:Key="Author">Stars</x:String>
 
             <!-- 透明 -->
