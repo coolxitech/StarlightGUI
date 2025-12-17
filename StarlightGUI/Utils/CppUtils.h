@@ -5,6 +5,10 @@
 namespace winrt::StarlightGUI::implementation {
     std::wstring GenerateRandomString(size_t length);
 
+    int GenerateRandomNumber(size_t from, size_t to);
+
+    int GetDateAsInt();
+
     std::wstring FixBackSplash(const hstring& hstr);
 
     std::wstring RemoveFromString(const hstring& hstr, const hstring& removeStr);

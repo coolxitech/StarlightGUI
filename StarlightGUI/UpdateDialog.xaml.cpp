@@ -13,7 +13,24 @@ namespace winrt::StarlightGUI::implementation
         InitializeComponent();
 
         this->Loaded([this](auto&&, auto&&) {
-            LatestVersionText().Text(LatestVersion());
+            if (IsUpdate()) {
+                Title(winrt::box_value(L"发现更新"));
+                LatestVersionText().Text(LatestVersion());
+                PrimaryButtonText(L"下载");
+                SecondaryButtonText(L"取消");
+				UpdateStackPanel().Visibility(Visibility::Visible);
+				AnnouncementStackPanel().Visibility(Visibility::Collapsed);
+            }
+            else {
+                Title(winrt::box_value(L"公告"));
+                UpdateTimeText().Text(LatestVersion());
+                AnnouncementLine1().Text(GetAnLine(1));
+                AnnouncementLine2().Text(GetAnLine(2));
+                AnnouncementLine3().Text(GetAnLine(3));
+                PrimaryButtonText(L"确认");
+                UpdateStackPanel().Visibility(Visibility::Collapsed);
+                AnnouncementStackPanel().Visibility(Visibility::Visible);
+            }
             });
     }
 
@@ -21,6 +38,11 @@ namespace winrt::StarlightGUI::implementation
         ContentDialogButtonClickEventArgs const& args)
     {
         auto deferral = args.GetDeferral();
+
+        if (!IsUpdate() && DontShowAgainCheckBox().IsChecked().GetBoolean()) {
+			LOG_INFO(L"", L"Opted to not show announcements again today.");
+            SaveConfig("last_announcement_date", GetDateAsInt());
+        }
 
         deferral.Complete();
     }

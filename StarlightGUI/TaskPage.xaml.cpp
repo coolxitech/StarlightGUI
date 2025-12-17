@@ -343,6 +343,7 @@ namespace winrt::StarlightGUI::implementation
         // 分割线2
         MenuFlyoutSeparator separator2;
 
+        // 选项3.1
         MenuFlyoutItem item3_1;
         item3_1.Icon(CreateFontIcon(L"\ue946"));
         item3_1.Text(L"更多信息");
@@ -354,7 +355,7 @@ namespace winrt::StarlightGUI::implementation
             });
         if (!KernelInstance::IsRunningAsAdmin()) item3_1.IsEnabled(false);
 
-        // 选项3.1
+        // 选项3.2
         MenuFlyoutSubItem item3_2;
         item3_2.Icon(CreateFontIcon(L"\ue8c8"));
         item3_2.Text(L"复制信息");
@@ -404,7 +405,7 @@ namespace winrt::StarlightGUI::implementation
         item3_2.Items().Append(item3_2_sub4);
         if (!KernelInstance::IsRunningAsAdmin()) item3_2_sub4.IsEnabled(false);
 
-        // 选项5
+        // 选项3.3
         MenuFlyoutItem item3_3;
         item3_3.Icon(CreateFontIcon(L"\uec50"));
         item3_3.Text(L"打开文件所在位置");
@@ -416,7 +417,7 @@ namespace winrt::StarlightGUI::implementation
             co_return;
             });
 
-        // 选项6
+        // 选项3.4
         MenuFlyoutItem item3_4;
         item3_4.Icon(CreateFontIcon(L"\ue8ec"));
         item3_4.Text(L"属性");

@@ -19,17 +19,35 @@ namespace winrt::StarlightGUI::implementation {
             L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             L"abcdefghijklmnopqrstuvwxyz";
 
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dist(0, static_cast<int>(charset.size() - 1));
-
         std::wstring result;
         result.reserve(length);
 
         for (size_t i = 0; i < length; ++i) {
-            result += charset[dist(gen)];
+            result += charset[GenerateRandomNumber(0, static_cast<int>(charset.size() - 1))];
         }
         return result;
+    }
+
+    int GenerateRandomNumber(size_t from, size_t to) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dist(from, to);
+
+        return dist(gen);
+    }
+
+    int GetDateAsInt() {
+        auto now = std::chrono::system_clock::now();
+
+        std::time_t t = std::chrono::system_clock::to_time_t(now);
+        std::tm tm = *std::localtime(&t);
+
+        std::ostringstream oss;
+        oss << std::setw(4) << std::setfill('0') << (tm.tm_year + 1900)
+            << std::setw(2) << std::setfill('0') << (tm.tm_mon + 1)
+            << std::setw(2) << std::setfill('0') << tm.tm_mday;
+
+        return std::stoi(oss.str());
     }
 
     std::wstring FixBackSplash(const hstring& hstr) {

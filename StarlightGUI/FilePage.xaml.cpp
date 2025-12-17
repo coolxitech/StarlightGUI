@@ -123,6 +123,7 @@ namespace winrt::StarlightGUI::implementation
             }
             });
 
+        // 选项2.2
         MenuFlyoutItem item2_2;
         item2_2.Icon(CreateFontIcon(L"\ue733"));
         item2_2.Text(L"删除 (内核)");
@@ -137,6 +138,7 @@ namespace winrt::StarlightGUI::implementation
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_2.IsEnabled(false);
 
+        // 选项2.3
         MenuFlyoutItem item2_3;
         item2_3.Icon(CreateFontIcon(L"\uf5ab"));
         item2_3.Text(L"强制删除");
@@ -151,6 +153,7 @@ namespace winrt::StarlightGUI::implementation
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_3.IsEnabled(false);
 
+        // 选项2.4
         MenuFlyoutItem item2_4;
         item2_4.Icon(CreateFontIcon(L"\ue72e"));
         item2_4.Text(L"锁定");
@@ -164,13 +167,8 @@ namespace winrt::StarlightGUI::implementation
             }
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_4.IsEnabled(false);
-        for (const auto& item : selectedFiles) {
-            if (item.Directory()) {
-                item2_4.IsEnabled(false);
-                break;
-            }
-        }
 
+        // 选项2.5
         MenuFlyoutItem item2_5;
         item2_5.Icon(CreateFontIcon(L"\ue8c8"));
         item2_5.Text(L"复制");
@@ -179,6 +177,79 @@ namespace winrt::StarlightGUI::implementation
             });
         if (!KernelInstance::IsRunningAsAdmin()) item2_5.IsEnabled(false);
 
+        MenuFlyoutSeparator separator2;
+
+        // 选项3.1
+        MenuFlyoutSubItem item3_1;
+        item3_1.Icon(CreateFontIcon(L"\ue8c8"));
+        item3_1.Text(L"复制信息");
+        MenuFlyoutItem item3_1_sub1;
+        item3_1_sub1.Icon(CreateFontIcon(L"\ue8ac"));
+        item3_1_sub1.Text(L"名称");
+        item3_1_sub1.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(selectedFiles[0].Name().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub1);
+        MenuFlyoutItem item3_1_sub2;
+        item3_1_sub2.Icon(CreateFontIcon(L"\uec6c"));
+        item3_1_sub2.Text(L"路径");
+        item3_1_sub2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(selectedFiles[0].Path().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub2);
+        MenuFlyoutItem item3_1_sub3;
+        item3_1_sub3.Icon(CreateFontIcon(L"\uec92"));
+        item3_1_sub3.Text(L"修改日期");
+        item3_1_sub3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::CopyToClipboard(selectedFiles[0].ModifyTime().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已复制内容至剪贴板", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法复制内容至剪贴板, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+        item3_1.Items().Append(item3_1_sub3);
+
+        // 选项3.2
+        MenuFlyoutItem item3_2;
+        item3_2.Icon(CreateFontIcon(L"\uec50"));
+        item3_2.Text(L"在文件管理器内打开");
+        item3_2.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::OpenFolderAndSelectFile(selectedFiles[0].Path().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已打开文件夹", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件夹, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+
+
+        // 选项3.3
+        MenuFlyoutItem item3_3;
+        item3_3.Icon(CreateFontIcon(L"\ue8ec"));
+        item3_3.Text(L"属性");
+        item3_3.Click([this, selectedFiles](IInspectable const& sender, RoutedEventArgs const& e) -> winrt::Windows::Foundation::IAsyncAction {
+            if (TaskUtils::OpenFileProperties(selectedFiles[0].Path().c_str())) {
+                CreateInfoBarAndDisplay(L"成功", L"已打开文件属性", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
+            }
+            else CreateInfoBarAndDisplay(L"失败", L"无法打开文件属性, 错误码: " + to_hstring((int)GetLastError()), InfoBarSeverity::Error, XamlRoot(), InfoBarPanel());
+            co_return;
+            });
+
+		// 当选中多个内容并且其中一个是文件夹时禁用锁定部分只能操作文件的按钮
+        for (const auto& item : selectedFiles) {
+            if (item.Directory()) {
+                item2_4.IsEnabled(false);
+                break;
+            }
+        }
+
         menuFlyout.Items().Append(item1_1);
         menuFlyout.Items().Append(separator1);
         menuFlyout.Items().Append(item2_1);
@@ -186,6 +257,10 @@ namespace winrt::StarlightGUI::implementation
         menuFlyout.Items().Append(item2_3);
         menuFlyout.Items().Append(item2_4);
         menuFlyout.Items().Append(item2_5);
+        menuFlyout.Items().Append(separator2);
+        menuFlyout.Items().Append(item3_1);
+        menuFlyout.Items().Append(item3_2);
+        menuFlyout.Items().Append(item3_3);
 
         menuFlyout.ShowAt(listView, e.GetPosition(listView));
 	}

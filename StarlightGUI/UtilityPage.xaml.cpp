@@ -45,7 +45,8 @@ namespace winrt::StarlightGUI::implementation{
 
 		if (safeAcceptedTag != tag) {
 			safeAcceptedTag = tag;
-			CreateInfoBarAndDisplay(L"警告", L"该页面的所有操作可能导致系统不稳定或崩溃！如果你知道自己在做什么，请再次点击！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"警告", L"该操作可能导致系统不稳定或崩溃！如果你知道自己在做什么，请再次点击！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
+			CreateInfoBarAndDisplay(L"警告", L"如果多次进行了同一个禁用操作，也需要多次进行启用才可恢复！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
 			co_return;
 		}
 
@@ -132,7 +133,6 @@ namespace winrt::StarlightGUI::implementation{
 
 		if (result) {
 			CreateInfoBarAndDisplay(L"成功", L"成功完成操作！", InfoBarSeverity::Success, XamlRoot(), InfoBarPanel());
-			CreateInfoBarAndDisplay(L"警告", L"如果多次进行了同一个禁用操作，也需要多次进行启用才可恢复！", InfoBarSeverity::Warning, XamlRoot(), InfoBarPanel());
 		}
 		else {
 			if (GetLastError() == 0) {

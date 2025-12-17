@@ -7,9 +7,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="发现更新"
-    PrimaryButtonText="前往下载"
-    SecondaryButtonText="取消"
     DefaultButton="Primary"
     PrimaryButtonClick="OnPrimaryButtonClick"    
     Style="{StaticResource DefaultContentDialogStyle}"
@@ -25,8 +22,8 @@
     </ContentDialog.TitleTemplate>
 
     <Grid>
-        <StackPanel Margin="0,0,0,10">
-            <TextBlock Text="检测到新版本的 Starlight GUI 可用！" />
+        <StackPanel x:Name="UpdateStackPanel" Margin="0,0,0,10" Visibility="Collapsed">
+            <TextBlock Text="检测到新版本的 Starlight GUI 可用！"/>
             <TextBlock>
                 <Run Text="当前版本:"/>
                 <Run Text="{StaticResource Version}"/>
@@ -37,6 +34,17 @@
             </TextBlock>
             <TextBlock Text="您可以通过这个对话框直接打开下载网页，或选择不进行更新。" />
             <TextBlock Text="Tips: 可以在设置里修改是否检测更新" Foreground="LightGray" FontSize="12"/>
+            <TextBlock Text="（用手机保存！！！求求了！！！这可以给我带来一点收益！！！）" Foreground="LightGray" FontSize="12"/>
+        </StackPanel>
+        <StackPanel x:Name="AnnouncementStackPanel" Margin="0,0,0,10" Visibility="Collapsed">
+            <TextBlock x:Name="AnnouncementLine1"/>
+            <TextBlock x:Name="AnnouncementLine2"/>
+            <TextBlock x:Name="AnnouncementLine3" Margin="0,0,0,10"/>
+            <TextBlock Margin="0,0,0,10" Foreground="LightGray" FontSize="12">
+                <Run Text="更新日期:"/>
+                <Run x:Name="UpdateTimeText"/>
+            </TextBlock>
+            <CheckBox x:Name="DontShowAgainCheckBox" Content="今日不再显示" IsChecked="False" />
         </StackPanel>
     </Grid>
 </ContentDialog>

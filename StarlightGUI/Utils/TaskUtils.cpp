@@ -197,11 +197,11 @@ namespace winrt::StarlightGUI::implementation {
 		return true;
 	}
 	/*
-	* 打开文件所在位置
+	* 打开文件所在位置并选中文件
 	*/
 	bool TaskUtils::OpenFolderAndSelectFile(std::wstring filePath) {
 		DWORD attrs = GetFileAttributesW(filePath.c_str());
-		if (attrs == INVALID_FILE_ATTRIBUTES || (attrs & FILE_ATTRIBUTE_DIRECTORY)) {
+		if (attrs == INVALID_FILE_ATTRIBUTES) {
 			return false;
 		}
 
