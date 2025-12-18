@@ -1,0 +1,40 @@
+name: C++ MSBuild CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        # 定义构建配置，可以同时测试不同的组合
+        configuration: [Release]
+        platform: [x64, x86]
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v6
+
+      - name: 添加 MSBuild 到环境变量
+        uses: microsoft/setup-msbuild@v2
+
+      - name: 重建 NuGet 包
+        run: nuget restore StarlightGUI.sln
+
+      - name: 生成构建版
+        run: |
+          msbuild StarlightGUI.sln `
+            -property:Configuration=${{ matrix.configuration }} `
+            -property:Platform=${{ matrix.platform }} `
+            -m # 启用多核并行构建，加快速度
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v6
+        with:
+          name: Build-Output-${{ matrix.platform }}
+          path: ${{ matrix.platform }}/${{ matrix.configuration }}/ # 根据你的实际输出路径修改
