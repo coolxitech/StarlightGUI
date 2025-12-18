@@ -13,6 +13,8 @@ namespace winrt::StarlightGUI::implementation
 {
     HelpPage::HelpPage() {
         InitializeComponent();
+
+        LOG_INFO(L"HelpPage", L"HelpPage initialized.");
     }
 
     void HelpPage::GithubButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)

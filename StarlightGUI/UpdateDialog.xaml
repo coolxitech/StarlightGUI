@@ -37,12 +37,17 @@
             <TextBlock Text="Tips: 可以在设置里修改是否检测更新" Foreground="LightGray" FontSize="12"  Margin="0,0,0,10"/>
             <Border HorizontalAlignment="Stretch" Height="1" Background="LightGray" Margin="0,0,0,10"/>
             <TextBlock Text="夸克网盘提取码: vVmj | 迅雷云盘提取码: 8mcz"/>
-            <TextBlock Text="（最好能用手机保存！这可以给我带来一些收益！谢谢！）" Foreground="LightGray" FontSize="12" Margin="0,0,0,5"/>
+            <TextBlock Text="本软件依靠网盘转存拉新来获取一些收益，所以不提供直链下载，敬请理解！" Margin="0,0,0,5"/>
+            <TextBlock Text="大家都是善良的人，希望大家有能力的话可以按照下面的步骤，为我创造更多收益:" Foreground="LightGray" FontSize="12" Margin="0,0,0,5"/>
+            <TextBlock Text=" [1] 有账号的话优先推荐*迅雷*。用*夸克*时请先在*手机端*转存，然后再在任意端下载。" Foreground="LightGray" FontSize="12"/>
+            <TextBlock Text=" [2] 如果没有网盘账号，优先推荐*夸克*，在*手机端*注册。" Foreground="LightGray" FontSize="12"/>
+            <TextBlock Text=" [3] 可以同时在*两个*网盘进行转存操作，我都可以得到收益。" Foreground="LightGray" FontSize="12"/>
+            <TextBlock Text=" [4] 可以*每日*进行一次转存，我可以一直得到收益。" Foreground="LightGray" FontSize="12" Margin="0,0,0,10"/>
             <ComboBox x:Name="ChannelComboBox" 
                       SelectedIndex="0"
                       essential:ComboBoxHelper.AcrylicWorkaround="True">
-                <ComboBoxItem Content="迅雷" />
-                <ComboBoxItem Content="夸克" />
+                <ComboBoxItem Content="迅雷 (推荐电脑端)" />
+                <ComboBoxItem Content="夸克 (推荐手机端)" />
             </ComboBox>
         </StackPanel>
         <StackPanel x:Name="AnnouncementStackPanel" Margin="0,0,0,10" Visibility="Collapsed">

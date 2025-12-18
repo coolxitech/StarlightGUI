@@ -150,7 +150,7 @@
             </essential:SettingsCard>
 
             <essential:SettingsCard Header="检查更新"
-                                    Description="每次启动时检查更新"
+                                    Description="每次启动时检查更新 (*保持从网盘获取更新可以为作者创造一些收益！)"
                                     IsClickEnabled="True"
                                     IsActionIconVisible="False"
                                     Margin="0,0,0,10">
@@ -162,14 +162,14 @@
 
 
             <essential:SettingsCard Header="日志"
-                                    Description="打开日志窗口"
+                                    Description="打开或关闭日志窗口"
                                     IsClickEnabled="True"
                                     IsActionIconVisible="False"
                                     Margin="0,0,0,10">
                 <essential:SettingsCard.HeaderIcon>
                     <FontIcon Glyph="&#xe70b;" FontFamily="Segoe Fluent Icons" FontSize="16"/>
                 </essential:SettingsCard.HeaderIcon>
-                <Button x:Name="LogButton" Content="打开" Click="LogButton_Click"/>
+                <Button x:Name="LogButton" Content="切换" Click="LogButton_Click"/>
             </essential:SettingsCard>
         </StackPanel>
     </ScrollViewer>

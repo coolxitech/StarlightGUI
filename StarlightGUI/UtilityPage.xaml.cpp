@@ -19,6 +19,8 @@ namespace winrt::StarlightGUI::implementation{
 				FindButtonsAndDisable(*this);
 				});
 		}
+
+		LOG_INFO(L"UtilityPage", L"UtilityPage initialized.");
 	}
 
 	winrt::fire_and_forget UtilityPage::FindButtonsAndDisable(DependencyObject obj) {
@@ -54,6 +56,8 @@ namespace winrt::StarlightGUI::implementation{
 		ULONG type = PGTypeComboBox().SelectedIndex();
 
 		co_await winrt::resume_background();
+
+		LOG_INFO(L"UtilityPage", L"Confirmed we will do: %s", tag.c_str());
 
 		BOOL result = FALSE;
 
@@ -157,6 +161,8 @@ namespace winrt::StarlightGUI::implementation{
 		std::wstring tag = button.Tag().as<winrt::hstring>().c_str();
 
 		co_await winrt::resume_background();
+
+		LOG_INFO(L"UtilityPage", L"Confirmed we will do: %s", tag.c_str());
 
 		BOOL result = FALSE;
 
