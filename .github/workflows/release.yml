@@ -25,15 +25,20 @@ jobs:
       - name: 添加 MSBuild 到环境变量
         uses: microsoft/setup-msbuild@v2
 
+      - name: 安装 NuGet
+        uses: NuGet/setup-nuget@v2
+
       - name: 重建 NuGet 包
         run: nuget restore StarlightGUI.sln
 
       - name: 生成构建版
         run: |
           msbuild StarlightGUI.sln `
-            -property:Configuration=${{ matrix.configuration }} `
-            -property:Platform=${{ matrix.platform }} `
-            -m # 启用多核并行构建，加快速度
+          /p:Configuration=Release `
+          /p:Platform=x64 `
+          /p:AppxPackageSigningEnabled=false `
+          /p:AppxBundle=Never `
+          /p:UapAppxPackageBuildMode=SideloadOnly
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v6
